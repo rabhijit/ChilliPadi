@@ -5,6 +5,7 @@ import { SearchBar } from "react-native-elements";
 import MyHeader from "../Components/header";
 import moment from "moment";
 import NavigationManager from "../managers/navigationManager";
+import fs from 'react-native-fs';
 import { JioSchema } from "../allSchemas";
 
 const Realm = require('realm');
@@ -14,71 +15,6 @@ const Realm = require('realm');
     other import statements or 
     JS variables like const here - can be dummy datas to use for development
 */
-const Jios = [
-    /*
-    {
-        jioId: 1,
-        titleName: "Chainsmokers concert jio!!",
-        location: "Singapore Indoor Stadium",
-        distanceFromHere: 16800,
-        description: "So baby pull me closer in the back seat of your Rover",
-        numberOfPeople: 18,
-        maxNumber: Infinity,
-        expiryDate: "21/8/2019",
-        genderPref: 1, // women only
-        jioCreator: "Amir Azhar"
-    },
-    {
-        jioId: 2,
-        titleName: "SUNNus Captain's Ball Team - Players needed",
-        location: "Siloso Beach",
-        distanceFromHere: 10600,
-        description: "Need some interested players to form a men's Captain's Ball Team. We need bla bla bla extra text just to check truncation",
-        numberOfPeople: 6,
-        maxNumber: 10,
-        expiryDate: "15/6/2019",
-        genderPref: 0, // men only
-        jioCreator: "Sad CEG Student"
-
-    },
-    {
-        jioId: 3,
-        titleName: "EE2026 study jio",
-        location: "COM1 basement",
-        distanceFromHere: 500,
-        description: "Midterms are tomorrow, the grind is real",
-        numberOfPeople: 2,
-        maxNumber: 5,
-        expiryDate: "13/8/2019",
-        genderPref: 2, // all genders
-        jioCreator: "Sad CEG Student"
-    },
-    {
-        jioId: 4,
-        titleName: "Tembu lobby Valentine's Day concert",
-        location: "Tembusu College",
-        distanceFromHere: 2000,
-        description: "Come watch some imbeciles play the guitar",
-        numberOfPeople: 17,
-        maxNumber: Infinity,
-        expiryDate: "14/2/2019",
-        genderPref: 2, // all genders
-        jioCreator: "Abhijit Ravichandran"
-    },
-    {
-        jioId: 5,
-        titleName: "sheares cheer competition jio",
-        location: "opposite SAFTI",
-        distanceFromHere: 25000,
-        description: "come watch Max destroy his glasses",
-        numberOfPeople: 7,
-        maxNumber: 30,
-        expiryDate: "26/6/2019",
-        genderPref: 2, // all genders
-        jioCreator: "Max Chan"
-    }
-    */
-]
 
 export default class JioPage extends Component {
   constructor(props) {
@@ -86,35 +22,42 @@ export default class JioPage extends Component {
     this.state = {
       //state property here
       realm: null,
-      size: -1
+      size: -1,
+      Jios: []
+      
     };
   }
   componentWillMount() {
-      Realm.open({
-          schema: [JioSchema]
-      })
-      .then(realm => {
-          /*
-          realm.write(() => {
-              realm.create('Jio', {
-                  jioId: 2,
-                  titleName: 'string',
-                  location: 'string',
-                      distanceFromHere: 5,
-                      description: 'string',
-                      numberOfPeople: 3,
-                      maxNumber: 10,
-                      expiryDate: '21/3/1995',
-                      genderPref: 3,
-                      jioCreator: 'string'
-              });
-          });
-          */
-          realm.defaultPath = '../../local.realm';
-          this.setState({realm});
-          this.setState({size: realm.objects('Jio').length});
-      });
+      fs.copyFileAssets('default.realm', fs.DocumentDirectoryPath + '/default.realm')
+      .then(() => {
+        Realm.open({
+            path: fs.DocumentDirectoryPath + '/default.realm',
+            schema: [JioSchema]
+        })
+        .then(realm => {
+            this.setState({realm});
+            this.setState({size: realm.objects('Jio').length});
+            let jios = realm.objects('Jio');
+            for (let i = 0; i < jios.length; i++) {
+                let eachJio = {};
+                eachJio['jioId'] = jios[i].jioId;
+                eachJio['titleName'] = jios[i].titleName;
+                eachJio['location'] = jios[i].location;
+                eachJio['distanceFromHere'] = jios[i].distanceFromHere;
+                eachJio['description'] = jios[i].description;
+                eachJio['numberOfPeople'] = jios[i].numberOfPeople;
+                eachJio['maxNumber'] = jios[i].maxNumber;
+                eachJio['expiryDate'] = jios[i].expiryDate;
+                eachJio['genderPref'] = jios[i].genderPref;
+                eachJio['jioCreator'] = jios[i].jioCreator;
+                this.setState(prevState => ({
+                    Jios: [...prevState.Jios, eachJio]
+                }));
+            }
+        });
+    });
   }
+
   /*
     React LifeCycle Methods: 
     e.g. componentWillMount(),
@@ -132,50 +75,48 @@ export default class JioPage extends Component {
     -> to pass state data here
     -> to access data of array etc
     */
-   console.warn(this.state.size);
 
     // Notice JSX - a html-JS like syntax is within ()
 
-    // &#8734; is infinity
+    // &#8734; is the infinity symbol
     // fix footer issue
 
     function MemberNumber(props) {
-        let maximumSet = props.maximumSet;
-        let number = props.number;
-        if (!maximumSet) {
+        let inf_const = 1e20;
+        let maximum = props.maximum;
+        if (maximum == inf_const) {
             return <Text style={{fontFamily: "Montserrat-SemiBold", fontSize: 13}}>
-                {Jios[number]["numberOfPeople"]} members
+                {props.noPeople} members
             </Text>;
         }
         else {
             return <Text style={{fontFamily: "Montserrat-SemiBold", fontSize: 13}}>
-                {Jios[number]["numberOfPeople"]} / {Jios[number]["maxNumber"]} members
+                {props.noPeople} / {props.maximum} members
             </Text>;
         }
     }
 
     function ShowDate(props) {
         let day = moment(props.date, "YYYY-MM-DD HH:mm:ss").format('ddd');
-        let number = props.number;
         return <Text style={{fontFamily: "Montserrat-SemiBold", fontSize: 13}}>
-            Expires {day}, {Jios[number]["expiryDate"]}
+            Expires {day}, {props.date}
         </Text>
     }
 
     let rows = [];
-    for (let i in Jios) {
+    for (let i in this.state.Jios) {
         rows.push(
             <TouchableOpacity key={i} onPress={() => NavigationManager.navigate("SingleJioPage",
-                                                {chosenJio: Jios[i]})}>
+                                                {chosenJio: this.state.Jios[i]})}>
             <Card>
                <CardItem>
                    <View style={{flexDirection: "column"}}>
-                       <Text style={{fontFamily: "Montserrat-Bold", fontSize: 17}}>{Jios[i]["titleName"]}</Text>
-                                              <ShowDate date={Jios[i]["expiryDate"]} number={i} />
+                       <Text style={{fontFamily: "Montserrat-Bold", fontSize: 17}}>{this.state.Jios[i]["titleName"]}</Text>
+                                              <ShowDate date={this.state.Jios[i]["expiryDate"]} number={i} />
                        <Text style={{fontFamily: "Montserrat-Light", fontSize: 12, paddingRight: "1%"}} numberOfLines={2}>
-                           {Jios[i]["description"]}
+                           {this.state.Jios[i]["description"]}
                        </Text>
-                       <MemberNumber maximumSet={Jios[i]["maxNumber"] != Infinity} number={i} />
+                       <MemberNumber maximum={this.state.Jios[i]["maxNumber"]} noPeople={this.state.Jios[i]["numberOfPeople"]} number={i} />
 
                    </View>
                </CardItem>
