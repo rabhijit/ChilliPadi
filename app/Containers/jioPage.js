@@ -5,13 +5,17 @@ import { SearchBar } from "react-native-elements";
 import MyHeader from "../Components/header";
 import moment from "moment";
 import NavigationManager from "../managers/navigationManager";
+import { JioSchema } from "../allSchemas";
+
+const Realm = require('realm');
+// /data/data/com.chillipadi2/files/default.realm
 
 /*
     other import statements or 
     JS variables like const here - can be dummy datas to use for development
 */
-
 const Jios = [
+    /*
     {
         jioId: 1,
         titleName: "Chainsmokers concert jio!!",
@@ -73,6 +77,7 @@ const Jios = [
         genderPref: 2, // all genders
         jioCreator: "Max Chan"
     }
+    */
 ]
 
 export default class JioPage extends Component {
@@ -80,7 +85,35 @@ export default class JioPage extends Component {
     super(props);
     this.state = {
       //state property here
+      realm: null,
+      size: -1
     };
+  }
+  componentWillMount() {
+      Realm.open({
+          schema: [JioSchema]
+      })
+      .then(realm => {
+          /*
+          realm.write(() => {
+              realm.create('Jio', {
+                  jioId: 2,
+                  titleName: 'string',
+                  location: 'string',
+                      distanceFromHere: 5,
+                      description: 'string',
+                      numberOfPeople: 3,
+                      maxNumber: 10,
+                      expiryDate: '21/3/1995',
+                      genderPref: 3,
+                      jioCreator: 'string'
+              });
+          });
+          */
+          realm.defaultPath = '../../local.realm';
+          this.setState({realm});
+          this.setState({size: realm.objects('Jio').length});
+      });
   }
   /*
     React LifeCycle Methods: 
@@ -99,6 +132,7 @@ export default class JioPage extends Component {
     -> to pass state data here
     -> to access data of array etc
     */
+   console.warn(this.state.size);
 
     // Notice JSX - a html-JS like syntax is within ()
 
