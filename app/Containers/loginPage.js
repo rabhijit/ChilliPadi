@@ -56,7 +56,7 @@ export default class LoginPage extends Component {
     this.state.login_success = false;
     for (let i in dummyAccounts) {
       if (this.state.typed_id == dummyAccounts[i]["ID"] && this.state.typed_password == dummyAccounts[i]["password"]) {
-        NavigationManager.navigate("HomePage");
+        NavigationManager.navigate("HomePage", {thisAccount: dummyAccounts[i]});
         Toast.show({text: "Welcome to Chilli Padi, " + dummyAccounts[i]["name"]});
         this.state.login_success = true;
         break;

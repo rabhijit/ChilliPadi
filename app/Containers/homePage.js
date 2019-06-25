@@ -14,6 +14,7 @@ export default class HomePage extends Component {
     super(props);
     this.state = {
       //state property here
+      thisAccount: this.props.navigation.state.params.thisAccount
     };
   }
   /*

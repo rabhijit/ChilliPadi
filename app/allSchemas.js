@@ -14,3 +14,14 @@ export const JioSchema = {
         jioCreator: 'string'
     }
 }
+
+export const AccountSchema = {
+    name: 'Account',
+    primaryKey: 'ID',
+    properties: {
+        ID: 'string',
+        password: 'string',
+        name: 'string',
+        fac: 'string'
+    }
+}

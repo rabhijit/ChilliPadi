@@ -17,11 +17,9 @@ import SingleJioPage from "./Containers/singleJioPage";
 
 const MyStackNavigator = createStackNavigator(
     {
-        /*
         LoginPage: {
             screen: LoginPage
         },
-        */
         HomePage: {
             screen: HomePage
         },

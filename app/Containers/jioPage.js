@@ -22,9 +22,7 @@ export default class JioPage extends Component {
     this.state = {
       //state property here
       realm: null,
-      size: -1,
       Jios: []
-      
     };
   }
   componentWillMount() {
