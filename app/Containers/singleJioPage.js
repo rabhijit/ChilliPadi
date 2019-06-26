@@ -36,7 +36,7 @@ export default class SingleJioPage extends Component {
     // Notice JSX - a html-JS like syntax is within ()
 
     function MemberNumber(props) {
-        let maximumSet = (props.max == Infinity);
+        let maximumSet = (props.max == 1e20);
         if (maximumSet) {
             return <Text style={{fontFamily: "Montserrat-SemiBold", fontSize: 14}}>
                 {props.min} / &#8734; members

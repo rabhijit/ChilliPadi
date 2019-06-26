@@ -4,17 +4,21 @@ import { Container, Text } from "native-base";
 import MyHeader from "../Components/header";
 import NavigationManager from "../managers/navigationManager";
 import CartManager from "../managers/cartManager";
+import realm from "../realm";
 
 /*
     other import statements or 
     JS variables like const here - can be dummy datas to use for development
 */
+
+let AdminAccount = (realm.objects("Account").filtered('ID == "admin"'))[0];
+
 export default class HomePage extends Component {
   constructor(props) {
     super(props);
     this.state = {
       //state property here
-      thisAccount: this.props.navigation.state.params.thisAccount
+      thisAccount: (typeof this.props.navigation.state.params === "undefined" ? AdminAccount : this.props.navigation.state.params.thisAccount)
     };
   }
   /*
@@ -42,7 +46,7 @@ export default class HomePage extends Component {
     return (
       <Container>
       <View style={{flex: 1}}>
-          <MyHeader />
+          <MyHeader account={this.state.thisAccount}/>
           <View>
             <TouchableOpacity onPress={() => NavigationManager.navigate("ListingPage")}>
                 <Image resizeMode="cover"
@@ -57,7 +61,7 @@ export default class HomePage extends Component {
             </TouchableOpacity>
           </View>
           <View>
-            <TouchableOpacity onPress={() => NavigationManager.navigate("JioPage")}>
+            <TouchableOpacity onPress={() => NavigationManager.navigate("JioPage", {thisAccount: this.state.thisAccount})}>
                 <Image resizeMode="cover"
                         source={require("../assets/images/category_images/social.jpg")}
                         style={{width: "100%", height: (7*deviceHeight)/16}} />

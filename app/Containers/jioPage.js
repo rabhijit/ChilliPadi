@@ -7,8 +7,8 @@ import moment from "moment";
 import NavigationManager from "../managers/navigationManager";
 import fs from 'react-native-fs';
 import { JioSchema } from "../allSchemas";
+import realm from "../realm";
 
-const Realm = require('realm');
 // /data/data/com.chillipadi2/files/default.realm
 
 /*
@@ -21,39 +21,30 @@ export default class JioPage extends Component {
     super(props);
     this.state = {
       //state property here
+      thisAccount: this.props.navigation.state.params.thisAccount,
       realm: null,
       Jios: []
     };
   }
+
   componentWillMount() {
-      fs.copyFileAssets('default.realm', fs.DocumentDirectoryPath + '/default.realm')
-      .then(() => {
-        Realm.open({
-            path: fs.DocumentDirectoryPath + '/default.realm',
-            schema: [JioSchema]
-        })
-        .then(realm => {
-            this.setState({realm});
-            this.setState({size: realm.objects('Jio').length});
-            let jios = realm.objects('Jio');
-            for (let i = 0; i < jios.length; i++) {
-                let eachJio = {};
-                eachJio['jioId'] = jios[i].jioId;
-                eachJio['titleName'] = jios[i].titleName;
-                eachJio['location'] = jios[i].location;
-                eachJio['distanceFromHere'] = jios[i].distanceFromHere;
-                eachJio['description'] = jios[i].description;
-                eachJio['numberOfPeople'] = jios[i].numberOfPeople;
-                eachJio['maxNumber'] = jios[i].maxNumber;
-                eachJio['expiryDate'] = jios[i].expiryDate;
-                eachJio['genderPref'] = jios[i].genderPref;
-                eachJio['jioCreator'] = jios[i].jioCreator;
-                this.setState(prevState => ({
-                    Jios: [...prevState.Jios, eachJio]
-                }));
-            }
-        });
-    });
+    let jios = realm.objects('Jio');
+    for (let i = 0; i < jios.length; i++) {
+        let eachJio = {};
+        eachJio['jioId'] = jios[i].jioId;
+        eachJio['titleName'] = jios[i].titleName;
+        eachJio['location'] = jios[i].location;
+        eachJio['distanceFromHere'] = jios[i].distanceFromHere;
+        eachJio['description'] = jios[i].description;
+        eachJio['numberOfPeople'] = jios[i].numberOfPeople;
+        eachJio['maxNumber'] = jios[i].maxNumber;
+        eachJio['expiryDate'] = jios[i].expiryDate;
+        eachJio['genderPref'] = jios[i].genderPref;
+        eachJio['jioCreator'] = jios[i].jioCreator;
+        this.setState(prevState => ({
+            Jios: [...prevState.Jios, eachJio]
+        }));
+    }
   }
 
   /*
@@ -125,7 +116,7 @@ export default class JioPage extends Component {
 
     return (
       <Container>
-          <MyHeader />
+          <MyHeader account={this.state.thisAccount} />
           <ScrollView>
             <SearchBar placeholder="Search for jios here..."
                         lightTheme={true}

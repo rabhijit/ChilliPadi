@@ -2,6 +2,7 @@ import React, { Component } from "react";
 import { View, Image, Dimensions, TextInput, TouchableOpacity } from "react-native";
 import { Container, Text, Toast } from "native-base";
 import NavigationManager from "../managers/navigationManager";
+import realm from "../realm";
 
 // settle Keyboard blocking text entry fields
 
@@ -10,26 +11,7 @@ import NavigationManager from "../managers/navigationManager";
     JS variables like const here - can be dummy datas to use for development
 */
 
-const dummyAccounts = [
-  {
-    ID: "E0123456",
-    password: "abcdef",
-    name: "Sad CEG Student",
-    fac: "Joint Multi-Disciplinary Programme"
-  },
-  {
-    ID: "E9876543",
-    password: "123456",
-    name: "Chan Wei Fong Max",
-    fac: "School of Computing"
-  },
-  {
-    ID: "admin",
-    password: "password",
-    name: "Administrator",
-    fac: "Chilli Padi Inc."
-  }
-];
+let accounts;
 
 export default class LoginPage extends Component {
   constructor(props) {
@@ -38,7 +20,6 @@ export default class LoginPage extends Component {
       //state property here
       typed_id: "",
       typed_password: "",
-      login_success: false
     };
   }
   
@@ -52,18 +33,22 @@ export default class LoginPage extends Component {
     -> call API to pass and receive data from backend
     -> any other functions etc.
   */
+  componentWillMount() {
+      accounts = realm.objects("Account");
+  }
+
+
   login_check() {
-    this.state.login_success = false;
-    for (let i in dummyAccounts) {
-      if (this.state.typed_id == dummyAccounts[i]["ID"] && this.state.typed_password == dummyAccounts[i]["password"]) {
-        NavigationManager.navigate("HomePage", {thisAccount: dummyAccounts[i]});
-        Toast.show({text: "Welcome to Chilli Padi, " + dummyAccounts[i]["name"]});
-        this.state.login_success = true;
-        break;
-      }
-    }
-    if (!this.state.login_success) {
+    let chosenAccount = accounts.filtered('ID == $0 AND password == $1', this.state.typed_id, this.state.typed_password);
+    if (chosenAccount.length == 0) {
       Toast.show({text: "Invalid user ID / password. NOTE: this service is currently available to NUS students only."});
+    }
+    else if (chosenAccount.length > 1) {
+      console.warn("error: multiple accounts with same ID");
+    }
+    else {
+      NavigationManager.navigate("HomePage", {thisAccount: chosenAccount[0]});
+      Toast.show({text: "Welcome to Chilli Padi, " + chosenAccount[0].name});
     }
 
   }

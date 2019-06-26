@@ -21,6 +21,7 @@ export default class MyHeader extends Component {
     super(props);
     this.state = {
       //state property here
+      thisAccount: this.props.account
     };
   }
   /*
@@ -33,6 +34,23 @@ export default class MyHeader extends Component {
     -> call API to pass and receive data from backend
     -> any other functions etc.
   */
+
+  shortNameCreator() {
+    let name = this.state.thisAccount.name;
+    let noWords = name.split(" ").length;
+    //console.warn(name.split(" "));
+    if (noWords == 1) {
+      return name.substring(0, 2);
+    }
+    else {
+      let displayName = '';
+      for (let i = 0; i < 2; i++) {
+        displayName += (name.split(" "))[i][0];
+      }
+      return displayName;
+    }
+
+  }
 
   render() {
     /*
@@ -51,7 +69,7 @@ export default class MyHeader extends Component {
           <Left style={{ flex: 1, flexDirection: "row"}}>
               <Button transparent>
                   {/*<Icon type="FontAwesome" name="user-circle" style={{color: "maroon"}}/> */}
-                  <Avatar rounded title="Ad" />
+                  <Avatar rounded title={this.shortNameCreator()} />
               </Button>
           </Left>
           <View style={{justifyContent: "center"}}>
