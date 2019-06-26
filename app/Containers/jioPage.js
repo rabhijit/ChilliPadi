@@ -118,7 +118,7 @@ export default class JioPage extends Component {
       <Container>
           <MyHeader account={this.state.thisAccount} />
           <ScrollView>
-            <SearchBar placeholder="Search for jios here..."
+            <SearchBar inputStyle={{fontFamily: "Montserrat-Regular"}} placeholder="Search for jios here..."
                         lightTheme={true}
             />
                 <CardItem><Text style={{fontFamily: "Montserrat-Light"}}>{rows.length} results</Text></CardItem>

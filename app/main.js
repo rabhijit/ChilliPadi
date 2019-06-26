@@ -5,10 +5,10 @@ import HomePage from "./Containers/homePage";
 import ListingPage from "./Containers/listingPage";
 import SingleListingPage from "./Containers/singleListingPage";
 import NavigationManager from "./managers/navigationManager";
-import CartPage from "./Containers/cartPage";
 import LoginPage from "./Containers/loginPage";
 import JioPage from "./Containers/jioPage";
 import SingleJioPage from "./Containers/singleJioPage";
+import MessagePage from "./Containers/messagePage";
 
 /*
     other import statements or
@@ -25,14 +25,14 @@ const MyStackNavigator = createStackNavigator(
         HomePage: {
             screen: HomePage
         },
+        MessagePage: {
+            screen: MessagePage
+        },
         ListingPage: {
             screen: ListingPage
         },
         SingleListingPage: {
             screen: SingleListingPage
-        },
-        CartPage: {
-            screen: CartPage
         },
         JioPage: {
             screen: JioPage

@@ -78,7 +78,7 @@ export default class MyHeader extends Component {
             </TouchableOpacity>
           </View>
           <Right>
-              <Button transparent onPress={() => NavigationManager.navigate("CartPage")}>
+              <Button transparent onPress={() => NavigationManager.navigate("MessagePage", {thisAccount: this.state.thisAccount})}>
                   <Icon type="AntDesign" name="message1"
                         style={{color:"maroon"}}
                     />
