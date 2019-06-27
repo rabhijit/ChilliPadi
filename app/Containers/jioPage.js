@@ -102,7 +102,7 @@ export default class JioPage extends Component {
                    <View style={{flexDirection: "column"}}>
                        <Text style={{fontFamily: "Montserrat-Bold", fontSize: 17}}>{this.state.Jios[i]["titleName"]}</Text>
                                               <ShowDate date={this.state.Jios[i]["expiryDate"]} number={i} />
-                       <Text style={{fontFamily: "Montserrat-Light", fontSize: 12, paddingRight: "1%"}} numberOfLines={2}>
+                       <Text style={{paddingTop: 4, paddingBottom: 4, fontFamily: "Montserrat-Light", fontSize: 13, paddingRight: "1%"}} numberOfLines={2}>
                            {this.state.Jios[i]["description"]}
                        </Text>
                        <MemberNumber maximum={this.state.Jios[i]["maxNumber"]} noPeople={this.state.Jios[i]["numberOfPeople"]} number={i} />
