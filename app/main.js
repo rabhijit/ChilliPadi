@@ -9,6 +9,8 @@ import LoginPage from "./Containers/loginPage";
 import JioPage from "./Containers/jioPage";
 import SingleJioPage from "./Containers/singleJioPage";
 import MessagePage from "./Containers/messagePage";
+import SingleMessagePage from "./Containers/singleMessagePage";
+import SwipingPage from "./Containers/swipingPage";
 
 /*
     other import statements or
@@ -28,11 +30,17 @@ const MyStackNavigator = createStackNavigator(
         MessagePage: {
             screen: MessagePage
         },
+        SingleMessagePage: {
+            screen: SingleMessagePage
+        },
         ListingPage: {
             screen: ListingPage
         },
         SingleListingPage: {
             screen: SingleListingPage
+        },
+        SwipingPage: {
+            screen: SwipingPage
         },
         JioPage: {
             screen: JioPage

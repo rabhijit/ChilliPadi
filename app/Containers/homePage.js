@@ -48,7 +48,7 @@ export default class HomePage extends Component {
       <View style={{flex: 1}}>
           <MyHeader account={this.state.thisAccount}/>
           <View>
-            <TouchableOpacity onPress={() => NavigationManager.navigate("ListingPage")}>
+            <TouchableOpacity onPress={() => NavigationManager.navigate("SwipingPage", {thisAccount: this.state.thisAccount})}>
                 <Image resizeMode="cover"
                         source={require("../assets/images/category_images/dating2.png")}
                         style={{width: "100%", height: (7*deviceHeight)/16}} />

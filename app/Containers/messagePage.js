@@ -17,37 +17,106 @@ let jioChats = [
     ID: 1,
     chatName: "Chainsmokers concert jio!!",
     members: ["Amir Azhar", "Abhijit Ravichandran", "Gervaise Chan"],
-    lastMessage: "Hey, I was doing just fine before I met you",
-    lastMessageTime: "09:39 AM",
-    lastMessageDate: "22/8/2019",
-    lastMessageSender: "Amir Azhar",
+    messages: [
+      {
+        ID: 1,
+        content: 'Hey',
+        messageDate: "22/8/2019",
+        messageTime: "07:39 AM",
+        sender: "you"
+      },
+      {
+        ID: 2,
+        content: "I was doing just fine before I met you",
+        messageDate: "22/8/2019",
+        messageTime: "08:39 AM",
+        sender: "Amir Azhar"
+      },
+      {
+        ID: 3,
+        content: "I drank too much and that's an issue",
+        messageDate: "22/8/2019",
+        messageTime: "09:39 AM",
+        sender: "Gervaise Chan"
+      },
+      {
+        ID: 4,
+        content: "but I'm ok",
+        messageDate: "22/8/2019",
+        messageTime: "09:40 AM",
+        sender: "Gervaise Chan"
+      }
+    ]
   },
   {
     ID: 2,
     chatName: "EE2026 study jio",
     members: ["Sad CEG Student", "Abhijit Ravichandran", "Max Chan"],
-    lastMessage: "Still generating bitstream...",
-    lastMessageTime: "00:01 AM",
-    lastMessageDate: "05/06/2019",
-    lastMessageSender: "Abhijit Ravichandran",
+    messages: [
+      {
+        ID: 1,
+        content: "Hey guys I'm here to wreck the bell-curve again",
+        messageDate: "05/6/2019",
+        messageTime: "03:24 AM",
+        sender: "Max Chan"
+      },
+      {
+        ID: 2,
+        content: "Still generating bitstream...",
+        messageDate: "05/6/2019",
+        messageTime: "08:01 AM",
+        sender: "you"
+      },
+    ]
   },
   {
     ID: 3,
     chatName: "SUNNus Captain's Ball Team - Players needed",
     members: ["Amir Azhar", "Sad CEG Student"],
-    lastMessage: "sorry, no noobs allowed",
-    lastMessageTime: "05:27 PM",
-    lastMessageDate: "15/6/2019",
-    lastMessageSender: "you",
+    messages: [
+      {
+        ID: 1,
+        content: "i love handling balls",
+        messageDate: "15/6/2019",
+        messageTime: "03:24 PM",
+        sender: "Amir Azhar"
+      },
+      {
+        ID: 2,
+        content: "sorry, no noobs allowed",
+        messageDate: "15/6/2019",
+        messageTime: "05:27 PM",
+        sender: "you"
+      },
+    ]
   },
   {
     ID: 4,
     chatName: "Tembu lobby Valentine's Day concert",
     members: ["Nicole Cheong", "Max Chan"],
-    lastMessage: "This concert is great! Did you know Tembusu College is the first Residential College created in the National University of Singapore?",
-    lastMessageTime: "11:58 PM",
-    lastMessageDate: "14/2/2019",
-    lastMessageSender: "Nicole Cheong",
+    messages: [
+      {
+        ID: 1,
+        content: "the CAPT concert was better tbh",
+        messageDate: "14/2/2019",
+        messageTime: "03:24 PM",
+        sender: "Max Chan"
+      },
+      {
+        ID: 2,
+        content: "any single ladies in the chat hmu",
+        messageDate: "14/6/2019",
+        messageTime: "03:24 PM",
+        sender: "Max Chan"
+      },
+      {
+        ID: 3,
+        content: "This concert is great! Did you know Tembusu College is the first Residential College created in the National University of Singapore?",
+        messageDate: "14/6/2019",
+        messageTime: "11:58 PM",
+        sender: "Nicole Cheong"
+      }
+    ]
   }
 ];
 
@@ -55,28 +124,72 @@ let datingChats = [
   {
     ID: 1,
     person: "Nicole Cheong",
-    lastMessage: "Looking for a badminton player to stroke my shuttlecock",
-    lastMessageTime: "03:04 AM",
-    lastMessageDate: "25/6/2019",
-    lastMessageSender: "Nicole Cheong"
+    messages: [
+      {
+        ID: 1,
+        content: "Looking for a badminton player to stroke my shuttlecock",
+        messageDate: "25/6/2019",
+        messageTime: "03:04 AM",
+        sender: "you"
+      }
+    ]
   },
   {
     ID: 2,
     person: "Gervaise Chan",
-    lastMessage: "please don't blue-tick me darling ;w;",
-    lastMessageTime: "12:00 PM",
-    lastMessageDate: "13/3/2019",
-    lastMessageSender: "you"
+    messages: [
+      {
+        ID: 1,
+        content: "Yea baby I'm dtf",
+        messageDate: "12/3/2019",
+        messageTime: "11:00 AM",
+        sender: "Gervaise Chan"
+      },
+      {
+        ID: 2,
+        content: "din tai fung ;)))))",
+        messageDate: "12/3/2019",
+        messageTime: "11:00 AM",
+        sender: "Gervaise Chan"
+      },
+      {
+        ID: 3,
+        content: "Wtf???",
+        messageDate: "12/3/2019",
+        messageTime: "12:00 PM",
+        sender: "you"
+      },
+      {
+        ID: 4,
+        content: "please don't blue tick me darling ;w;",
+        messageDate: "13/3/2019",
+        messageTime: "12:00 PM",
+        sender: "Gervaise Chan"
+      }
+    ]
   },
   {
     ID: 3,
     person: "Danielle Chan",
-    lastMessage: "My only purpose in life is to display enough text to test the truncation setting",
-    lastMessageTime: "05:04 PM",
-    lastMessageDate: "26/6/2019",
-    lastMessageSender: "you"
+    messages: [
+      {
+        ID: 1,
+        content: "Sadly enough",
+        messageDate: "26/6/2019",
+        messageTime: "05:04 PM",
+        sender: "Danielle Chan"
+      },
+      {
+        ID: 2,
+        content: "My only purpose in life is to display enough text to test the truncation setting",
+        messageDate: "26/6/2019",
+        messageTime: "05:04 PM",
+        sender: "Danielle Chan"
+      },
+    ]
   }
 ];
+
 
 let AdminAccount = (realm.objects("Account").filtered('ID == "admin"'))[0];
 
@@ -126,15 +239,16 @@ export default class MessagePage extends Component {
       if (props.index == 0) {
         for (let i in datingChats) {
           rows.push(
-            <TouchableOpacity key={i}>
+            <TouchableOpacity key={i} onPress={() => NavigationManager.navigate("SingleMessagePage", 
+                                                    {chosenChat: datingChats[i]['messages'], thisAccount: props.thisAccount})}>
               <Card>
                 <CardItem>
                   <View style={{flexDirection: "row"}}>
                     <Avatar size="large" rounded />
                     <View style={{width: deviceWidth * (7.7/10), paddingLeft: 15, paddingRight: 15, flexDirection: "column", flexWrap: 'wrap'}}>
                       <Text style={{fontFamily: 'Montserrat-Bold', fontSize: 17, paddingBottom: 7}}>{datingChats[i]['person']}</Text>
-                      <Text numberOfLines={2} style={{fontFamily: 'Montserrat-Regular', fontSize: 13, paddingBottom: 7}}>{datingChats[i]['lastMessage']}</Text>
-                      <ShowDate date={datingChats[i]['lastMessageDate']} time={datingChats[i]['lastMessageTime']} />
+                      <Text numberOfLines={2} style={{fontFamily: 'Montserrat-Regular', fontSize: 13, paddingBottom: 7}}>{datingChats[i]['messages'][datingChats[i]['messages'].length-1]['content']}</Text>
+                      <ShowDate date={datingChats[i]['messages'][datingChats[i]['messages'].length-1]['messageDate']} time={datingChats[i]['messages'][datingChats[i]['messages'].length-1]['messageTime']} />
                     </View>
                   </View>
                 </CardItem>
@@ -146,7 +260,8 @@ export default class MessagePage extends Component {
     else if (props.index == 1) {
       for (let i in jioChats) {
         rows.push(
-          <TouchableOpacity key={i}>
+          <TouchableOpacity key={i} onPress={() => NavigationManager.navigate("SingleMessagePage", 
+                                                    {chosenChat: jioChats[i]['messages'], thisAccount: props.thisAccount})}>
           <Card>
             <CardItem>
               <View style={{flexDirection: "row"}}>
@@ -161,9 +276,9 @@ export default class MessagePage extends Component {
                 </View>
                 <View style={{width: deviceWidth * (7.7/10), paddingLeft: 15, paddingRight: 15, flexDirection: "column", flexWrap: 'wrap'}}>
                   <Text style={{fontFamily: 'Montserrat-Bold', fontSize: 17, paddingBottom: 7}}>{jioChats[i]['chatName']}</Text>
-                  <Text style={{fontFamily: 'Montserrat-SemiBold', fontSize: 13}}>{jioChats[i]['lastMessageSender']}:</Text>
-                  <Text numberOfLines={1} style={{fontFamily: 'Montserrat-Regular', fontSize: 13, paddingBottom: 7}}>{jioChats[i]['lastMessage']}</Text>
-                  <ShowDate date={jioChats[i]['lastMessageDate']} time={jioChats[i]['lastMessageTime']} />
+                  <Text style={{fontFamily: 'Montserrat-SemiBold', fontSize: 13}}>{jioChats[i]['messages'][(jioChats[i]['messages']).length - 1]['sender']}:</Text>
+                  <Text numberOfLines={1} style={{fontFamily: 'Montserrat-Regular', fontSize: 13, paddingBottom: 7}}>{jioChats[i]['messages'][(jioChats[i]['messages'].length-1)]['content']}</Text>
+                  <ShowDate date={jioChats[i]['messages'][(jioChats[i]['messages']).length - 1]['messageDate']} time={jioChats[i]['messages'][(jioChats[i]['messages']).length - 1]['messageTime']} />
                 </View>
               </View>
             </CardItem>
@@ -192,7 +307,7 @@ export default class MessagePage extends Component {
             {/*
             <CardItem><Text style={{fontFamily: "Montserrat-Light"}}>{rows.length} threads</Text></CardItem>
             */}
-            <ButtonSelect index={this.state.selectedIndex} />
+            <ButtonSelect thisAccount={this.state.thisAccount} index={this.state.selectedIndex} />
         </ScrollView>
       </Container>
     );
