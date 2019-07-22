@@ -75,9 +75,7 @@ export default class SwipingPage extends Component {
    let rows = [];
    for (let i in accountDetails) {
        rows.push(
-           <TouchableOpacity key={i}>
-             <View style={{alignItems: "center", justifyContent: "center"}}>
-                <Card style={styles.card}>
+                <Card key={i} style={styles.card}>
                     <View style={{alignItems: "center"}}>
                         <Image source={accountDetails[i]["pic"]} style={styles.image} />
                     </View>
@@ -92,8 +90,6 @@ export default class SwipingPage extends Component {
                         <Icon size={20} color="maroon" type="EvilIcons" name="close" />
                     </View>
                 </Card>
-             </View>
-           </TouchableOpacity>
        )
    }
 
@@ -103,10 +99,8 @@ export default class SwipingPage extends Component {
         <MyHeader />
         <View style={{paddingTop: 10}}>
             <CardStack ref={swiper => {this.swiper = swiper}} style={{alignItems: 'center'}}
-                       disableTopSwipe={true}
-                       disableBottomSwipe={true}
-                       disableLeftSwipe={true}
-                       disableRightSwipe={true}
+                       onSwipedLeft={() => void 0}
+                       onSwiped={() => void 0}
                        renderNoMoreCards={() =>
                                         <View style={{flexDirection: "column", justifyContent: "center"}}>
                                           <Text style={{justifyContent: "center", fontFamily: "Montserrat-SemiBold"}}>

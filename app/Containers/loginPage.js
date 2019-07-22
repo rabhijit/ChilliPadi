@@ -6,6 +6,7 @@ import Realm from "realm";
 
 import { SERVER_URL } from "../src/constants"
 import { JioSchema, AccountSchema } from "../src/allSchemas"
+import firebase from 'react-native-firebase'
 
 
 // settle Keyboard blocking text entry fields

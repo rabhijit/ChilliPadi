@@ -3,6 +3,9 @@ package com.chillipadi2;
 import android.app.Application;
 
 import com.facebook.react.ReactApplication;
+import io.invertase.firebase.RNFirebasePackage;
+//import io.invertase.firebase.RNFirebaseAdMobPackage;
+import io.invertase.firebase.firestore.RNFirebaseFirestorePackage;
 import com.entria.views.RNViewOverflowPackage;
 import com.rnfs.RNFSPackage;
 import io.realm.react.RealmReactPackage;
@@ -29,6 +32,9 @@ public class MainApplication extends Application implements ReactApplication {
     protected List<ReactPackage> getPackages() {
       return Arrays.<ReactPackage>asList(
           new MainReactPackage(),
+            new RNFirebasePackage(),
+            //new RNFirebaseAdMobPackage(),
+            new RNFirebaseFirestorePackage(),
             new RNViewOverflowPackage(),
             new RNFSPackage(),
             new RealmReactPackage(),
