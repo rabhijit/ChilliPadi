@@ -2,10 +2,6 @@ import React, { Component } from "react";
 import { View, Image, Dimensions, TextInput, TouchableOpacity } from "react-native";
 import { Container, Text, Toast } from "native-base";
 import NavigationManager from "../managers/navigationManager";
-import Realm from "realm";
-
-import { SERVER_URL } from "../src/constants"
-import { JioSchema, AccountSchema } from "../src/allSchemas"
 import firebase from 'react-native-firebase'
 
 
@@ -58,64 +54,16 @@ export default class LoginPage extends Component {
   }*/
   
   login_check() {
-    let creds = Realm.Sync.Credentials.usernamePassword(this.state.typed_id, this.state.typed_password, false)
-    Realm.Sync.User.login(SERVER_URL, creds).then(user => {
-      //Create a configuration to open the default Realm
-    const config = user.createConfiguration({
-      sync: { url : "realms://chillipaditest.us1.cloud.realm.io/default"
-              //fullSynchronization: true
-            },
-      schema: [JioSchema, AccountSchema]
-    });
-    // Open the realm
-    const realm = new Realm(config);
-    /*
-    let jios = realm.objects('Jio');
-    this.subscription = jios.subscribe();
-    this.subscription.addListener(this.onSubscriptionChange);
-    Toast.show({text: jios.length})
-    */
-    //navigate to home page
-    NavigationManager.navigate("HomePage", {ouruser: user, ourrealm: realm});
-    Toast.show({text: "Welcome to Chilli Padi"});
-
-    }).catch(error => {
-      //an auth error has occured
-      Toast.show({text: "Invalid user ID / password. NOTE: this service is currently available to NUS students only."});
-    })
+    firebase.auth().signInWithEmailAndPassword(this.state.typed_id, this.state.typed_password)
+            .then(() => {
+              NavigationManager.navigate("HomePage");
+              Toast.show({text: "Welcome to Chilli Padi"});
+            })
+            .catch(error => {
+              console.warn(error);
+              Toast.show({text: "Account does not exist"});
+              })
   }
-
-    onSubscriptionChange = (sub, substate) => {
-      switch (substate) {
-        case Realm.Sync.SubscriptionState.Creating:
-          // The subscription has not yet been written to the Realm
-          console.warn('Creating subscription...');
-          break;
-        case Realm.Sync.SubscriptionState.Pending:
-          // The subscription has been written to the Realm and is waiting
-          // to be processed by the server
-          console.warn('Pending subscription...');
-          break;
-        case Realm.Sync.SubscriptionState.Complete:
-          // The subscription has been processed by the server and all objects
-          // matching the query are in the local Realm
-          console.warn('Subscription complete.');
-          break;
-        case Realm.Sync.SubscriptionState.Invalidated:
-          // The subscription has been removed
-          console.warn('Invalid subscription.');
-          break;
-        case Realm.Sync.SubscriptionState.Error:
-          console.warn('An error occurred: ', subscription.error);
-          break;
-      }
-    }
-
-
-
-
-
-
 
   render() {
     /*

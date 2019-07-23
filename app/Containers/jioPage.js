@@ -7,6 +7,7 @@ import moment from "moment";
 import NavigationManager from "../managers/navigationManager";
 import DatePicker from "react-native-datepicker";
 import NumericInput from "react-native-numeric-input";
+import firebase from "react-native-firebase";
 
 const jioKeyExtractor = jio => jio.jioId.toString();
 
@@ -17,13 +18,13 @@ const jioKeyExtractor = jio => jio.jioId.toString();
     JS variables like const here - can be dummy datas to use for development
 */
 
+var db = firebase.firestore();
 
 export default class JioPage extends Component {
     constructor(props) {
     super(props);
     this.state = {
       //state property here
-      ourrealm: this.props.navigation.state.params.ourrealm,
       Jios: null,
       ready: false,
       dataVersion: 0,

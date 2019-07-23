@@ -16,8 +16,6 @@ export default class HomePage extends Component {
     super(props);
     this.state = {
       //state property here
-      ouruser: this.props.navigation.state.params.ouruser,
-      ourrealm: this.props.navigation.state.params.ourrealm
     };
   }
   /*
@@ -47,7 +45,7 @@ export default class HomePage extends Component {
       <View style={{flex: 1}}>
           <MyHeader />
           <View>
-            <TouchableOpacity onPress={() => NavigationManager.navigate("SwipingPage", {ouruser: this.props.navigation.state.params.ouruser, ourrealm: this.props.navigation.state.params.ourrealm})}>
+            <TouchableOpacity onPress={() => NavigationManager.navigate("SwipingPage")}>
                 <Image resizeMode="cover"
                         source={require("../assets/images/category_images/dating2.png")}
                         style={{width: "100%", height: (7*deviceHeight)/16}} />
@@ -60,7 +58,7 @@ export default class HomePage extends Component {
             </TouchableOpacity>
           </View>
           <View>
-            <TouchableOpacity onPress={() => NavigationManager.navigate("JioPage", {ouruser: this.props.navigation.state.params.ouruser, ourrealm: this.props.navigation.state.params.ourrealm})}>
+            <TouchableOpacity onPress={() => NavigationManager.navigate("JioPage")}>
                 <Image resizeMode="cover"
                         source={require("../assets/images/category_images/social.jpg")}
                         style={{width: "100%", height: (7*deviceHeight)/16}} />

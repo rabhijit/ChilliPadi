@@ -6,6 +6,7 @@ import com.facebook.react.ReactApplication;
 import io.invertase.firebase.RNFirebasePackage;
 //import io.invertase.firebase.RNFirebaseAdMobPackage;
 import io.invertase.firebase.firestore.RNFirebaseFirestorePackage;
+import io.invertase.firebase.auth.RNFirebaseAuthPackage;
 import com.entria.views.RNViewOverflowPackage;
 import com.rnfs.RNFSPackage;
 import io.realm.react.RealmReactPackage;
@@ -35,6 +36,7 @@ public class MainApplication extends Application implements ReactApplication {
             new RNFirebasePackage(),
             //new RNFirebaseAdMobPackage(),
             new RNFirebaseFirestorePackage(),
+            new RNFirebaseAuthPackage(),
             new RNViewOverflowPackage(),
             new RNFSPackage(),
             new RealmReactPackage(),

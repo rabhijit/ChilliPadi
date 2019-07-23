@@ -194,7 +194,6 @@ export default class MessagePage extends Component {
     super(props);
     this.state = {
       //state property here
-      thisAccount: this.props.navigation.state.params.thisAccount,
       selectedIndex: 0
     };
     this.updateIndex = this.updateIndex.bind(this);

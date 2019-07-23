@@ -6,6 +6,7 @@ import realm from "../realm";
 
 import { SERVER_URL } from "../src/constants"
 import { AccountSchema } from "../src/allSchemas";
+import firebase from "react-native-firebase";
 
 // settle Keyboard blocking text entry fields
 
@@ -35,17 +36,15 @@ export default class createAccountPage extends Component {
     */
 
     create_account() {
-        let creds= Realm.Sync.Credentials.usernamePassword(this.state.typed_id, this.state.typed_password, true)
-
-        Realm.Sync.User.login(SERVER_URL, creds).then(user => {
-            //navigate to home page
-            NavigationManager.navigate("LoginPage");
-            Toast.show({text: "Account Created Successfully!"});
-          
-            }).catch(error => {
-            //an auth error has occured
-            Toast.show({text: "Account with this NUSNET ID already exists"});
-            })
+        firebase.auth().createUserWithEmailAndPassword(this.state.typed_id, this.state.typed_password)
+                .then(() => {
+                    NavigationManager.navigate("LoginPage");
+                    Toast.show({text: "Account created successfully!"});
+                  })
+                  .catch(error => {
+                    console.warn(error);
+                    Toast.show({text: "Something went wrong."});
+                  })
     }
                   
 
