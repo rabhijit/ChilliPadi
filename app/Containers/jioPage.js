@@ -9,8 +9,6 @@ import DatePicker from "react-native-datepicker";
 import NumericInput from "react-native-numeric-input";
 import firebase from "react-native-firebase";
 
-const jioKeyExtractor = jio => jio.jioId.toString();
-
 // /data/data/com.chillipadi2/files/default.realm
 
 /*
@@ -18,16 +16,17 @@ const jioKeyExtractor = jio => jio.jioId.toString();
     JS variables like const here - can be dummy datas to use for development
 */
 
-var db = firebase.firestore();
+// order jios
+// use querying for searchbar
+
+let db = firebase.firestore();
 
 export default class JioPage extends Component {
     constructor(props) {
     super(props);
     this.state = {
       //state property here
-      Jios: null,
-      ready: false,
-      dataVersion: 0,
+      Jios: [],
       isOverlayVisible: false,
       maxCheck: false,
       newJioName: "",
@@ -37,70 +36,51 @@ export default class JioPage extends Component {
       newJioMax: 1e20
     };
     this.writeJio = this.writeJio.bind(this);
+    this.setJioMax = this.setJioMax.bind(this);
   }
 
   componentDidMount() {
-    const realm = this.state.ourrealm;
-    let jios = realm.objects('Jio');
-    jios.addListener(() => {
-        this.setState({dataVersion: this.state.dataVersion + 1});
+    db.collection('jios').onSnapshot(snapshot => {
+        this.setState({Jios: []});
+        snapshot.docs.forEach(doc => {
+            let eachJio = {};
+            let data = doc.data();
+            eachJio['titleName'] = data.titleName;
+            eachJio['location'] = data.location;
+            eachJio['distanceFromHere'] = data.distanceFromHere;
+            eachJio['description'] = data.description;
+            eachJio['numberOfPeople'] = data.numberOfPeople;
+            eachJio['maxNumber'] = data.maxNumber;
+            eachJio['expiryDate'] = data.expiryDate;
+            eachJio['genderPref'] = data.genderPref;
+            eachJio['jioCreator'] = data.jioCreator;
+            if (!(this.state.Jios.includes(eachJio))) {
+                this.setState(prevState => ({
+                    Jios: [...prevState.Jios, eachJio],
+                }));
+            }
+        })
     })
-    this.subscription = jios.subscribe();
-    this.subscription.addListener(this.onSubscriptionChange);
-    this.setState({ Jios : jios });
+
   }
 
   writeJio() {
-
-      const realm = this.state.ourrealm;
-      if (!(this.state.newJioName == "" && this.state.newJioLocation == "" && this.state.newJioDescription == "" && this.state.newJioExpiry == "")) {
-        realm.write(() => {
-            realm.create('Jio', {
-                jioId: (this.state.Jios == null ? 0 : this.state.Jios.length),
-                titleName: this.state.newJioName,
-                location: this.state.newJioLocation,
-                distanceFromHere: Math.floor(Math.random() * 30000),
-                description: this.state.newJioDescription,
-                numberOfPeople: 1,
-                maxNumber: this.state.newJioMax,
-                expiryDate: this.state.newJioExpiry,
-                jioCreator: "you"
-            });
-        });
-        Toast.show({text: "Jio created!"})
-        this.setState({newJioName: "", newJioDescription: "", newJioExpiry: "", newJioMax: 1e20});
-    }
-    else {
-        Toast.show({text: "Please fill in all particulars."});
-    }
+    db.collection('jios').add({
+        titleName: this.state.newJioName,
+        location: this.state.newJioLocation,
+        distanceFromHere: Math.floor(Math.random() * 30000),
+        description: this.state.newJioDescription,
+        numberOfPeople: 1,
+        maxNumber: this.state.newJioMax,
+        expiryDate: this.state.newJioExpiry,
+        jioCreator: "you"
+    })
+    this.setState({newJioName: "", newJioLocation: "", newJioDescription: "", newJioExpiry: "", newJioMax: 1e20});
+    Toast.show({text: "Jio created!"})
   }
 
-  onSubscriptionChange = (sub, substate) => {
-      /*
-      switch (substate) {
-          case Realm.Sync.SubscriptionState.Creating:
-          // The subscription has not yet been written to the Realm
-            console.warn('Creating subscription...');
-            break;
-          case Realm.Sync.SubscriptionState.Pending:
-          // The subscription has been written to the Realm and is waiting
-          // to be processed by the server
-            console.warn('Pending subscription...');
-            break;
-          case Realm.Sync.SubscriptionState.Complete:
-              // The subscription has been processed by the server and all objects
-              // matching the query are in the local Realm
-              console.warn('Subscription complete.');
-              break;
-          case Realm.Sync.SubscriptionState.Invalidated:
-          // The subscription has been removed
-            console.warn('Invalid subscription.');
-            break;
-          case Realm.Sync.SubscriptionState.Error:
-              console.warn('An error occurred: ', subscription.error);
-              break;
-      }
-      */
+  setJioMax(value) {
+    this.setState({newJioMax: value});
   }
 
   /*
@@ -158,7 +138,7 @@ export default class JioPage extends Component {
             return null;
         }
         else {
-            return <NumericInput onChange={(value) => this.setState({newJioMax: value})} />
+            return <NumericInput onChange={value => this.setJioMax(value)} />
         }
     }
 
@@ -185,10 +165,6 @@ export default class JioPage extends Component {
             );
         }
     }
-
-    const Jios = this.state.Jios;
-    const ready = this.state.ready;
-    const dataVersion = this.state.dataVersion;
 
     return (
       <Container>
@@ -230,7 +206,7 @@ export default class JioPage extends Component {
                         <MaxSet maxCheck={this.state.maxCheck} />
                     </View>
                     <View style={{paddingLeft: 10, paddingTop: 10}}>
-                        <Button style={{flexDirection: "row", backgroundColor: "maroon", justifyContent: "center"}} onPress={this.writeJio}>
+                        <Button style={{flexDirection: "row", backgroundColor: "maroon", justifyContent: "center"}} onPress={() => {this.writeJio(); this.setState({isOverlayVisible: false})}}>
                             <Text style={{fontFamily: "Montserrat-Bold", fontSize: 15, color: "white"}}>Submit your jio</Text>
                         </Button>
                     </View>
@@ -247,38 +223,9 @@ export default class JioPage extends Component {
               </FooterTab>
           </Footer>
       </Container>
-      /*
-      <View>
-          <FlatList
-            data={Jios}
-            extraData={dataVersion}
-            renderItem={this.renderJio}
-            keyExtractor={jioKeyExtractor}
-          />
-      </View>
-      */
     );
   }
 
-  renderJio = ({ item }) => (
-         <TouchableOpacity key={item.jioId} onPress={() => NavigationManager.navigate("SingleJioPage",
-                                                {chosenJio: item})}>
-            <Card>
-               <CardItem>
-                   <View style={{flexDirection: "column"}}>
-                       <Text style={{fontFamily: "Montserrat-Bold", fontSize: 17}}>{item.titleName}</Text>
-                                              {/*<ShowDate date={item.expiryDate} number={0} />*/}
-                       <Text style={{paddingTop: 4, paddingBottom: 4, fontFamily: "Montserrat-Light", fontSize: 13, paddingRight: "1%"}} numberOfLines={2}>
-                           {item.description}
-                       </Text>
-                       {/*<MemberNumber maximum={item.maxNumber} noPeople={item.numberOfPeople} number={0} />*/}
-
-                   </View>
-               </CardItem>
-            </Card>
-           </TouchableOpacity>
-
-  )
 }
 
 

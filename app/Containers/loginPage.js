@@ -12,8 +12,6 @@ import firebase from 'react-native-firebase'
     JS variables like const here - can be dummy datas to use for development
 */
 
-let accounts;
-
 export default class LoginPage extends Component {
   constructor(props) {
     super(props);
