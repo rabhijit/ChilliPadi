@@ -12,6 +12,8 @@ import firebase from 'react-native-firebase'
     JS variables like const here - can be dummy datas to use for development
 */
 
+let db = firebase.firestore();
+
 export default class LoginPage extends Component {
   constructor(props) {
     super(props);
@@ -37,25 +39,22 @@ export default class LoginPage extends Component {
   }
 
 
-  /*login_check() {
-    let chosenAccount = accounts.filtered('ID == $0 AND password == $1', this.state.typed_id, this.state.typed_password);
-    if (chosenAccount.length == 0) {
-      Toast.show({text: "Invalid user ID / password. NOTE: this service is currently available to NUS students only."});
-    }
-    else if (chosenAccount.length > 1) {
-      console.warn("error: multiple accounts with same ID");
-    }
-    else {
-      NavigationManager.navigate("HomePage", {thisAccount: chosenAccount[0]});
-      Toast.show({text: "Welcome to Chilli Padi, " + chosenAccount[0].name});
-    }
-  }*/
-  
   login_check() {
-    firebase.auth().signInWithEmailAndPassword(this.state.typed_id, this.state.typed_password)
+    firebase.auth().signInWithEmailAndPassword(this.state.typed_id + "@chillipadi.com", this.state.typed_password)
             .then(() => {
-              NavigationManager.navigate("HomePage");
-              Toast.show({text: "Welcome to Chilli Padi"});
+              let user = {};
+              db.collection('accounts').doc(this.state.typed_id).get().then(doc => {
+                let data = doc.data();
+                user['ID'] = data.ID;
+                user['name'] = data.name;
+                user['gender'] = data.gender;
+                user['age'] = data.age;
+                user['dp'] = data.dp;
+                user['fac'] = data.fac;
+                user['bio'] = data.bio;
+                NavigationManager.navigate("HomePage", {user: user});
+                Toast.show({text: "Welcome to Chilli Padi"});
+                })
             })
             .catch(error => {
               console.warn(error);

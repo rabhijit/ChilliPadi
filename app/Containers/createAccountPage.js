@@ -36,7 +36,7 @@ export default class createAccountPage extends Component {
     */
 
     componentDidMount() {
-      ImagePicker.launchCamera();
+      //ImagePicker.launchCamera();
     }
 
     create_account() {

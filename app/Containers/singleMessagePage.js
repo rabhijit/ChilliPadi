@@ -21,6 +21,7 @@ export default class SingleMessagePage extends Component {
     super(props);
     this.state = {
       //state property here
+      user: this.props.navigation.state.params.user,
       messages: [],
       chosenChat: this.props.navigation.state.params.chosenChat,
       datingOrJio: this.props.navigation.state.params.datingOrJio
@@ -52,6 +53,9 @@ export default class SingleMessagePage extends Component {
             let userObj = {};
             userObj['name'] = data.sender;
             userObj['_id'] = 1;
+            if (data.dp != "null") {
+              userObj['avatar'] = data.dp;
+            }
             eachMsg['user'] = userObj;
             newDatingMsgs.push(eachMsg);
             coveredIds.push(doc.id);
@@ -73,6 +77,9 @@ export default class SingleMessagePage extends Component {
             let userObj = {};
             userObj['name'] = "you";
             userObj['_id'] = 0;
+            if (this.state.user.dp != "null") {
+              userObj['avatar'] = this.state.user.dp;
+            }
             eachMsg['user'] = userObj;
             newDatingMsgs.push(eachMsg);
             coveredIds.push(doc.id);
@@ -107,6 +114,9 @@ export default class SingleMessagePage extends Component {
           }
           else {
             userObj['_id'] = memberList.indexOf(data.sender) + 1;
+          }
+          if (data.dp != "null") {
+            userObj['avatar'] = data.dp;
           }
           eachMsg['user'] = userObj;
           newMsgs.push(eachMsg);
@@ -165,13 +175,14 @@ export default class SingleMessagePage extends Component {
     // Notice JSX - a html-JS like syntax is within ()
     return (
       <Container>
-        <MyHeader />
+        <MyHeader user={this.state.user}/>
         <GiftedChat
             messages={this.state.messages}
             onSend={message => this.onSend(message)}
             user={{
                 _id: 0,
-                name: 'you'
+                name: 'you',
+                avatar: (this.state.user.dp != "null" ? this.state.user.dp : null)
             }}
         />
       </Container>

@@ -1,57 +1,33 @@
 import React, { Component } from "react";
-import { Image, View, TouchableOpacity, Platform, Dimensions, StyleSheet } from "react-native";
-import { Container, Text } from "native-base";
-import { Icon } from "react-native-elements";
+import { Image, View, TouchableOpacity, Platform, Dimensions, StyleSheet, Alert } from "react-native";
+import { Container, Text, Button } from "native-base";
+import { Icon, Overlay } from "react-native-elements";
 //import Swiper from "react-native-deck-swiper";
 import CardStack, { Card } from "react-native-card-stack-swiper";
 import MyHeader from "../Components/header";
+import firebase from "react-native-firebase";
 
 /*
     other import statements or 
     JS variables like const here - can be dummy datas to use for development
 */
 
-let accountDetails = [
-    {
-        ID: 1,
-        name: "Nicole Cheong",
-        age: 22,
-        bio: "I'm not as manly as I look... I'm manlier ;)",
-        fac: "Faculty of Science",
-        pic: require("../assets/images/profile_pictures/nicole_cheong.jpg")
-    },
-    {
-        ID: 2,
-        name: "Abhinaya Ravichandran",
-        age: 21,
-        bio: "Probably the most attractive person on this app tbh",
-        fac: "Joint Multi-Disciplinary Programme",
-        pic: require("../assets/images/profile_pictures/abhinaya_ravichandran.jpg")
-    },
-    {
-        ID: 3,
-        name: "Danielle Chan",
-        age: 20,
-        bio: "Tulpar is rabz af, come on over",
-        fac: "Faculty of Arts and Social Sciences",
-        pic: require("../assets/images/profile_pictures/danielle_chan.jpg")
-    },
-    {
-        ID: 4,
-        name: "Gervaise Chan",
-        age: 23,
-        bio: "People call me Gervaise, but you can call me Max- I mean, tonight",
-        fac: "School of Computing",
-        pic: require("../assets/images/profile_pictures/gervaise_chan.jpg")
-    }
-]
+let storage = firebase.storage();
+let db = firebase.firestore();
+
+let cards = [];
 
 export default class SwipingPage extends Component {
   constructor(props) {
     super(props);
     this.state = {
       //state property here
-      thisAccount: this.props.navigation.state.params.thisAccount
+      user: this.props.navigation.state.params.user,
+      accounts: [],
+      isOverlayVisible: false,
+      matchPic: null,
+      matchName: null,
+      matchGender: null
     };
   }
   /*
@@ -65,6 +41,39 @@ export default class SwipingPage extends Component {
     -> any other functions etc.
   */
 
+  componentDidMount() {
+    db.collection('accounts').where('gender', '==', +(!this.state.user['gender']))
+      .get().then(snapshot => {
+        snapshot.docs.forEach(doc => {
+          let eachAccount = {};
+          let data = doc.data();
+          if (data.dp != "null") {
+            eachAccount['ID'] = doc.id;
+            eachAccount['name'] = data.name;
+            eachAccount['age'] = data.age;
+            eachAccount['bio'] = data.bio;
+            eachAccount['fac'] = data.fac;
+            eachAccount['pic'] = data.dp;
+            this.setState(prevState => ({accounts: [...prevState.accounts, eachAccount]}));
+          }
+        });
+      });
+  }
+
+  onSwipedRight(index) {
+    db.collection('accounts').doc(this.state.user['ID']).update({
+      interests: firebase.firestore.FieldValue.arrayUnion(cards[index])
+    })
+    db.collection('accounts').doc(cards[index]).get().then(doc => {
+      let data = doc.data();
+      if (data.interests.includes(this.state.user['ID'])) {
+        //console.warn(`Match with ${data.name}!`);
+        this.setState({matchName: data.name, matchPic: data.dp, matchGender: data.gender ? "her" : "him"});
+        this.setState({isOverlayVisible: true});
+      }
+    })
+  }
+
   render() {
     /*
     JS Expressions here
@@ -73,16 +82,18 @@ export default class SwipingPage extends Component {
     */
 
    let rows = [];
-   for (let i in accountDetails) {
+   cards = [];
+   for (let i in this.state.accounts) {
+       cards.push(this.state.accounts[i]["ID"]);
        rows.push(
                 <Card key={i} style={styles.card}>
                     <View style={{alignItems: "center"}}>
-                        <Image source={accountDetails[i]["pic"]} style={styles.image} />
+                        <Image source={{uri: this.state.accounts[i]["pic"]}} style={styles.image} />
                     </View>
                     <View style={{paddingLeft: 12, paddingRight: 12, paddingTop: 10}}>
-                        <Text style={{fontFamily: "Montserrat-Bold", fontSize: 22}}>{accountDetails[i]["name"]}, {accountDetails[i]["age"]}</Text>
-                        <Text style={{fontFamily: "Montserrat-Italic", fontSize: 16}}>{accountDetails[i]["fac"]}</Text>
-                        <Text style={{paddingTop: 20, fontFamily: "Montserrat-Regular", fontSize: 15}}>{accountDetails[i]["bio"]}</Text>
+                        <Text style={{fontFamily: "Montserrat-Bold", fontSize: 22}}>{this.state.accounts[i]["name"]}, {this.state.accounts[i]["age"]}</Text>
+                        <Text style={{fontFamily: "Montserrat-Italic", fontSize: 16}}>{this.state.accounts[i]["fac"]}</Text>
+                        <Text style={{paddingTop: 20, fontFamily: "Montserrat-Regular", fontSize: 15}}>{this.state.accounts[i]["bio"]}</Text>
                     </View>
                     <View style={{flexDirection: "row", justifyContent: "space-around", paddingLeft: 12, paddingRight: 12, position: 'absolute', bottom: 5}}>
                         <Icon size={20} color="forestgreen" type="Feather" name="check" />
@@ -92,15 +103,36 @@ export default class SwipingPage extends Component {
                 </Card>
        )
    }
-
     // Notice JSX - a html-JS like syntax is within ()
     return (
       <Container style={styles.container}>
         <MyHeader />
         <View style={{paddingTop: 10}}>
+            <Overlay isVisible={this.state.isOverlayVisible}
+                     onBackdropPress={() => this.setState({isOverlayVisible: false})}
+                     width={(8.8/10)*deviceWidth} height={(8.8/10)*deviceHeight}>
+              <View style={{alignItems: "center"}}>
+                <Text style={{fontFamily: "Montserrat-Bold", fontSize: 25}}>It's a match!</Text>
+                <Text style={{textAlign: "center", paddingTop: 2, fontFamily: "Montserrat-Light", fontSize: 13}}>The stars have aligned in favour of you and {this.state.matchName}.</Text>
+                <View style={{paddingTop: 5, flexDirection: "row", justifyContent: "space-evenly"}}>
+                  <Image source={{uri: this.state.user.dp}} style={{width: (3.75/10 * deviceWidth), height: (5/10) * deviceHeight}}/>
+                  <Image source={{uri: this.state.matchPic}} style={{width: (3.75/10 * deviceWidth), height: (5/10) * deviceHeight}}/>
+                </View>
+                <View style={{paddingTop: 10}}>
+                  <Button style={{alignSelf: "center", flexDirection: "row", backgroundColor: "maroon", justifyContent: "center"}}>
+                      <Text style={{fontFamily: "Montserrat-Bold", fontSize: 15, color: "white"}}>Message {this.state.matchGender}</Text>
+                  </Button>
+                </View>
+                <View style={{paddingTop: 10}}>
+                  <Button style={{alignSelf: "center", flexDirection: "row", backgroundColor: "maroon", justifyContent: "center"}}>
+                      <Text style={{fontFamily: "Montserrat-Bold", fontSize: 15, color: "white"}}>Maybe later</Text>
+                  </Button>
+                </View>
+              </View>
+
+            </Overlay>
             <CardStack ref={swiper => {this.swiper = swiper}} style={{alignItems: 'center'}}
-                       onSwipedLeft={() => void 0}
-                       onSwiped={() => void 0}
+                       onSwipedRight={(index) => {this.setState({currentIndex: index}); this.onSwipedRight(index); }}
                        renderNoMoreCards={() =>
                                         <View style={{flexDirection: "column", justifyContent: "center"}}>
                                           <Text style={{justifyContent: "center", fontFamily: "Montserrat-SemiBold"}}>

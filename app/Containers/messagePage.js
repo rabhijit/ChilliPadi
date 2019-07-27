@@ -16,14 +16,18 @@ import firebase from "react-native-firebase";
 
 let db = firebase.firestore();
 
+let datingDps = [];
+let jioDps = [];
+
 export default class MessagePage extends Component {
   constructor(props) {
     super(props);
     this.state = {
       //state property here
+      user: this.props.navigation.state.params.user,
       selectedIndex: 0,
       datingChats: {},
-      jioChats: {}
+      jioChats: {},
     };
     this.updateIndex = this.updateIndex.bind(this);
   }
@@ -40,7 +44,6 @@ export default class MessagePage extends Component {
         if (data.sender == "you" || data.recipient == "you") {
           if (!(conversations.includes(data.sender)) || !(conversations.includes(data.recipient))) {
             let thisChat = {};
-            thisChat["id"] = doc.id;
             thisChat["content"] = data.content;
             thisChat["sender"] = data.sender;
             thisChat["timestamp"] = data.timestamp;
@@ -56,12 +59,14 @@ export default class MessagePage extends Component {
               if (!(data.recipient in newDatingChats)) {
                 newDatingChats[data.recipient] = [];
               }
+              thisChat["ID"] = data.recipientID;
               newDatingChats[data.recipient].push(thisChat);
             }
             else {
               if (!(data.sender in newDatingChats)) {
                 newDatingChats[data.sender] = [];
               }
+              thisChat["ID"] = data.senderID;
               newDatingChats[data.sender].push(thisChat);
             }
             //console.warn(conversations);
@@ -81,7 +86,6 @@ export default class MessagePage extends Component {
         to only search for jios u are in (if you are in data.jio.member) */
         if (!(conversations.includes(data.jio))) {
           let thisChat = {};
-          thisChat["id"] = doc.id;
           thisChat["content"] = data.content;
           thisChat["jio"] = data.jio;
           thisChat["sender"] = data.sender;
@@ -92,12 +96,29 @@ export default class MessagePage extends Component {
           if (!(data.jio in newJioChats)) {
             newJioChats[data.jio] = [];
           }
+          thisChat["senderID"] = data.sender 
           newJioChats[data.jio].push(thisChat);
           //console.warn(conversations);
         }
       })
       this.setState({jioChats: newJioChats});
     })
+
+  }
+
+  shortNameCreator() {
+    let name = this.state.user.name;
+    let noWords = name.split(" ").length;
+    //console.warn(name.split(" "));
+    if (noWords == 1) {
+      return name.substring(0, 2);
+    } else {
+      let displayName = '';
+      for (let i = 0; i < 2; i++) {
+        displayName += (name.split(" "))[i][0];
+      }
+      return displayName;
+    }
   }
 
   /*
@@ -122,6 +143,16 @@ export default class MessagePage extends Component {
     */
 
     // Notice JSX - a html-JS like syntax is within ()
+
+    for (let i in this.state.datingChats) {
+      console.warn(this.state.datingChats[i][0]);
+      db.collection('accounts').doc(this.state.datingChats[i][0]['ID']).onSnapshot(doc => {
+        let data = doc.data();
+        datingDps.push(data.dp);
+      })
+    }
+
+    console.warn(datingDps);
 
     function ShowDate(props) {
         let day = moment(props.date, "YYYY-MM-DD HH:mm:ss").format('ddd');
@@ -151,7 +182,17 @@ export default class MessagePage extends Component {
           }
         }
     }
+
     let deviceWidth = Dimensions.get('window').width;
+
+    function MyAvatar(props) {
+      if (props.dp != "null") {
+        return <Avatar size="large" rounded source={{uri: props.dp}} />
+      }
+      else {
+        return <Avatar size="large" rounded title={props.func} />
+      }
+    }
 
     function ButtonSelect(props) {
       let rows = [];
@@ -159,11 +200,11 @@ export default class MessagePage extends Component {
         for (let i in Object.keys(props.datingChats)) {
           rows.push(
             <TouchableOpacity key={i} onPress={() => NavigationManager.navigate("SingleMessagePage", 
-                                                    {chosenChat: Object.keys(props.datingChats)[i], datingOrJio: 0})}>
+                                                    {chosenChat: Object.keys(props.datingChats)[i], datingOrJio: 0, user: props.user})}>
               <Card>
                 <CardItem>
                   <View style={{flexDirection: "row"}}>
-                    <Avatar size="large" rounded />
+                    <MyAvatar dp={props.datingChats[Object.keys(props.datingChats)[i]][0]['dp']} func={props.func} />
                     <View style={{width: deviceWidth * (7.7/10), paddingLeft: 15, paddingRight: 15, flexDirection: "column", flexWrap: 'wrap'}}>
                       <Text style={{fontFamily: 'Montserrat-Bold', fontSize: 17, paddingBottom: 7}}>{Object.keys(props.datingChats)[i]}</Text>
                       <Text numberOfLines={2} style={{fontFamily: 'Montserrat-Regular', fontSize: 13, paddingBottom: 7}}>{props.datingChats[Object.keys(props.datingChats)[i]][0]['content']}</Text>
@@ -181,7 +222,7 @@ export default class MessagePage extends Component {
       for (let i in Object.keys(props.jioChats)) {
         rows.push(
           <TouchableOpacity key={i} onPress={() => NavigationManager.navigate("SingleMessagePage", 
-                                                    {chosenChat: Object.keys(props.jioChats)[i], datingOrJio: 1})}>
+                                                    {chosenChat: Object.keys(props.jioChats)[i], datingOrJio: 1, user: props.user})}>
           <Card>
             <CardItem>
               <View style={{flexDirection: "row"}}>
@@ -213,7 +254,7 @@ export default class MessagePage extends Component {
 
     return (
       <Container>
-        <MyHeader account={this.state.thisAccount} />
+        <MyHeader user={this.state.user} />
         <View style={{paddingTop: 10, alignItems: "center"}}>
           <Text style={{fontFamily: "Montserrat-Bold", fontSize: 18}}>
             Your Messages
@@ -228,7 +269,7 @@ export default class MessagePage extends Component {
             {/*
             <CardItem><Text style={{fontFamily: "Montserrat-Light"}}>{rows.length} threads</Text></CardItem>
             */}
-            <ButtonSelect thisAccount={this.state.thisAccount} index={this.state.selectedIndex} 
+            <ButtonSelect user={this.state.user} index={this.state.selectedIndex} func={this.shortNameCreator()}
                           datingChats={this.state.datingChats} jioChats={this.state.jioChats}
              />
         </ScrollView>
