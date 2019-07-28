@@ -3,17 +3,25 @@ import { View, ScrollView } from "react-native";
 import { Container, Icon, Text, Card, CardItem, Button, Footer, FooterTab } from "native-base";
 import { Avatar } from "react-native-elements";
 import moment from "moment";
+import MyHeader from "../Components/header";
+import NavigationManager from "../managers/navigationManager";
+import firebase from "react-native-firebase";
 /*
     other import statements or 
     JS variables like const here - can be dummy datas to use for development
 */
+
+let db = firebase.firestore();
 export default class SingleJioPage extends Component {
   constructor(props) {
     super(props);
     this.state = {
       //state property here
-      thisJio: this.props.navigation.state.params.chosenJio
+      user: this.props.navigation.state.params.user,
+      thisJio: this.props.navigation.state.params.chosenJio,
+      inJio: false
     };
+    this.joinOrLeave = this.joinOrLeave.bind(this);
   }
   /*
     React LifeCycle Methods: 
@@ -25,6 +33,32 @@ export default class SingleJioPage extends Component {
     -> call API to pass and receive data from backend
     -> any other functions etc.
   */
+
+  componentDidMount() {
+      db.collection('jios').doc(this.state.thisJio["jioID"]).onSnapshot(doc => {
+          if (doc.data().members.includes(this.state.user["ID"])) {
+              this.setState({inJio: true});
+          }
+          else {
+              this.setState({inJio: false});
+          }
+      })
+  }
+
+  joinOrLeave() {
+    if (!(this.state.inJio)) {
+        db.collection('jios').doc(this.state.thisJio["jioID"]).update({
+            members: firebase.firestore.FieldValue.arrayUnion(this.state.user["ID"])
+        });
+        //this.setState({inJio: true});
+    }
+    else {
+        db.collection('jios').doc(this.state.thisJio["jioID"]).update({
+            members: firebase.firestore.FieldValue.arrayRemove(this.state.user["ID"])
+        });
+        //this.setState({inJio: false});
+    }
+  }
 
   render() {
     /*
@@ -49,8 +83,32 @@ export default class SingleJioPage extends Component {
         }
     }
 
+    function MyButton(props) {
+        if (!props.inJio) {
+            return <FooterTab style={{"backgroundColor": "white", borderRadius: 1, borderColor: "maroon", borderWidth: 0.8}}>
+                  <Button style={{flexDirection: "row", justifyContent: "center"}}
+                          onPress={props.func}>
+                      <Icon type="AntDesign" name="pluscircleo"
+                            style={{color:"maroon", fontSize: 35}} />
+                      <Text style={{fontFamily: "Montserrat-Bold", fontSize: 15, color: "maroon"}}>Join this jio</Text>
+                  </Button>
+              </FooterTab>;
+        }
+        else {
+            return <FooterTab style={{"backgroundColor": "maroon", borderRadius: 1, borderColor: "maroon", borderWidth: 0.8}}>
+                  <Button style={{flexDirection: "row", justifyContent: "center"}}
+                          onPress={props.func}>
+                      <Icon type="AntDesign" name="checkcircle"
+                            style={{color:"white", fontSize: 35}} />
+                      <Text style={{fontFamily: "Montserrat-Bold", fontSize: 15, color: "white"}}>Joined!</Text>
+                  </Button>
+              </FooterTab>;
+        }
+    }
+
     return (
       <Container>
+        <MyHeader user={this.state.user} />
         <ScrollView style={{padding: 15}}>
             <View>
                 <View style={{paddingLeft: 15, paddingRight: 15, paddingBottom: 5}}>
@@ -90,9 +148,11 @@ export default class SingleJioPage extends Component {
                                     {this.state.thisJio["jioCreator"]}
                                 </Text>
                             </View>
-                            <Button block style={{width: "118%", backgroundColor: "maroon", flexDirection: "row", justifyContent: "center"}}>
+                            <Button block style={{width: "100%", backgroundColor: "maroon", flexDirection: "row", justifyContent: "center"}}
+                                    onPress={() => NavigationManager.navigate("SingleMessagePage", {user: this.state.user, chosenChat: this.state.thisJio['titleName'], 
+                                                                              chosenChatId: this.state.thisJio['jioID'], datingOrJio: 1})}>
                                 <Icon type="MaterialCommunityIcons" name="message" style={{color: "white"}} />
-                                <Text style={{fontFamily: "Montserrat-SemiBold"}}>Message</Text>
+                                <Text style={{fontFamily: "Montserrat-SemiBold"}}>Text Group Chat</Text>
                             </Button>
                         </View>
                     </CardItem>
@@ -112,13 +172,7 @@ export default class SingleJioPage extends Component {
             </View>
         </ScrollView>
         <Footer>
-              <FooterTab style={{"backgroundColor": "white", borderRadius: 1, borderColor: "maroon", borderWidth: 0.8}}>
-                  <Button style={{flexDirection: "row", justifyContent: "center"}}>
-                      <Icon type="AntDesign" name="pluscircleo"
-                            style={{color:"maroon", fontSize: 35}} />
-                      <Text style={{fontFamily: "Montserrat-Bold", fontSize: 15, color: "maroon"}}>Join this jio</Text>
-                  </Button>
-              </FooterTab>
+              <MyButton inJio={this.state.inJio} func={this.joinOrLeave} />
           </Footer>
       </Container>
     );

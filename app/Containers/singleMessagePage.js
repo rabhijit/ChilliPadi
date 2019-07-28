@@ -24,6 +24,8 @@ export default class SingleMessagePage extends Component {
       user: this.props.navigation.state.params.user,
       messages: [],
       chosenChat: this.props.navigation.state.params.chosenChat,
+      chosenChatId: this.props.navigation.state.params.chosenChatId,
+      chosenDp: this.props.navigation.state.params.chosenDp,
       datingOrJio: this.props.navigation.state.params.datingOrJio
     };
   }
@@ -41,7 +43,7 @@ export default class SingleMessagePage extends Component {
     newDatingMsgs = [];
     coveredIds = [];
     if (this.state.datingOrJio == 0) {
-      db.collection('datingChats').where("sender", '==', this.state.chosenChat).where("recipient", '==', 'you')
+      db.collection('datingChats').where("senderID", '==', this.state.chosenChatId).where("recipientID", '==', this.state.user["ID"])
       .orderBy("timestamp", "desc").onSnapshot(snapshot => {
         snapshot.docs.forEach(doc => {
           if (!(coveredIds.includes(doc.id))) {
@@ -53,8 +55,8 @@ export default class SingleMessagePage extends Component {
             let userObj = {};
             userObj['name'] = data.sender;
             userObj['_id'] = 1;
-            if (data.dp != "null") {
-              userObj['avatar'] = data.dp;
+            if (this.state.chosenDp != "null") {
+              userObj['avatar'] = this.state.chosenDp;
             }
             eachMsg['user'] = userObj;
             newDatingMsgs.push(eachMsg);
@@ -65,7 +67,7 @@ export default class SingleMessagePage extends Component {
         this.setState({messages: newDatingMsgs});
       })
 
-      db.collection('datingChats').where("sender", '==', "you").where("recipient", "==", this.state.chosenChat)
+      db.collection('datingChats').where("senderID", '==', this.state.user["ID"]).where("recipientID", "==", this.state.chosenChatId)
       .orderBy("timestamp", "desc").onSnapshot(snapshot => {
         snapshot.docs.forEach(doc => {
           if (!(coveredIds.includes(doc.id))) {
@@ -75,7 +77,7 @@ export default class SingleMessagePage extends Component {
             eachMsg['text'] = data.content;
             eachMsg['createdAt'] = moment(data.timestamp.toDate()).add(8, 'hours')
             let userObj = {};
-            userObj['name'] = "you";
+            userObj['name'] = this.state.user["name"];
             userObj['_id'] = 0;
             if (this.state.user.dp != "null") {
               userObj['avatar'] = this.state.user.dp;
@@ -91,7 +93,26 @@ export default class SingleMessagePage extends Component {
     }
 
     else if (this.state.datingOrJio == 1) {
-      db.collection('jioChats').where("jio", "==", this.state.chosenChat).orderBy("timestamp", "desc")
+      /*
+      let memberDps = {};
+      let memberList = [];
+      db.collection('jios').doc(this.state.chosenChatId).get().then(doc => {
+        let data = doc.data();
+        for (let i in data.members) {
+          memberList.push(data.members[i]);
+        }
+      })
+
+      for (let i in memberList) {
+        db.collection('accounts').doc(memberList[i]).get().then(doc => {
+          let data = doc.data();
+          memberDps[memberList[i]] = data.dp;
+                console.warn(memberDps);
+        })
+      }
+      */
+
+      db.collection('jioChats').where("jioID", "==", this.state.chosenChatId).orderBy("timestamp", "desc")
       .onSnapshot(snapshot => {
         let newMsgs = [];
         let memberList = [];
@@ -104,7 +125,7 @@ export default class SingleMessagePage extends Component {
           let userObj = {};
           userObj['name'] = data.sender;
           if (!(memberList.includes(data.sender))) {
-            if (data.sender == "you") {
+            if (data.sender == this.state.user["name"]) {
               userObj['_id'] = 0;
             }
             else {
@@ -139,15 +160,13 @@ export default class SingleMessagePage extends Component {
   }
 
   onSend(message) {
-    /*
-    this.setState(previousState => ({
-      messages: GiftedChat.append(previousState.messages, message),
-    })) */
     if (this.state.datingOrJio == 0) {
       db.collection('datingChats').add({
         content: message[0]['text'],
         recipient: this.state.chosenChat,
-        sender: "you",
+        recipientID: this.state.chosenChatId,
+        sender: this.state.user["name"],
+        senderID: this.state.user["ID"],
         read: 1,
         timestamp: new Date()
       })
@@ -156,7 +175,9 @@ export default class SingleMessagePage extends Component {
       db.collection('jioChats').add({
         content: message[0]['text'],
         jio: this.state.chosenChat,
-        sender: "you",
+        jioID: this.state.chosenChatId,
+        sender: this.state.user["name"],
+        senderID: this.state.user["ID"],
         read: 1,
         timestamp: new Date()
       })
@@ -179,9 +200,10 @@ export default class SingleMessagePage extends Component {
         <GiftedChat
             messages={this.state.messages}
             onSend={message => this.onSend(message)}
+            renderUsernameOnMessage={!!this.state.datingOrJio}
             user={{
                 _id: 0,
-                name: 'you',
+                name: this.state.user["name"],
                 avatar: (this.state.user.dp != "null" ? this.state.user.dp : null)
             }}
         />

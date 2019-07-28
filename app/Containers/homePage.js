@@ -75,7 +75,7 @@ export default class HomePage extends Component {
             </TouchableOpacity>
           </View>
           <View>
-            <TouchableOpacity onPress={() => NavigationManager.navigate("JioPage")}>
+            <TouchableOpacity onPress={() => NavigationManager.navigate("JioPage", {user: this.state.user})}>
                 <Image resizeMode="cover"
                         source={require("../assets/images/category_images/social.jpg")}
                         style={{width: "100%", height: (7*deviceHeight)/16}} />

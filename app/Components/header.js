@@ -40,6 +40,10 @@ export default class MyHeader extends Component {
     -> any other functions etc.
   */
 
+  componentWillUnmount() {
+    this.setState({isOverlayVisible: false});
+  }
+
   shortNameCreator() {
     let name = this.state.user.name;
     let noWords = name.split(" ").length;
@@ -80,19 +84,26 @@ export default class MyHeader extends Component {
 
     return (
       <View>
-      <Overlay onBackdropPress={() => this.setState({isOverlayVisible: false})} isVisible={this.state.isOverlayVisible} width={(8.8/10)*deviceWidth} height={(5.8/10)*deviceHeight}>
+      <Overlay onBackdropPress={() => this.setState({isOverlayVisible: false})} isVisible={this.state.isOverlayVisible} width={(8.8/10)*deviceWidth} height={(6.4/10)*deviceHeight}>
         <View style={{padding: 5, justifyContent: "space-evenly", alignItems: "center"}}>
           <MyAvatar size="xlarge" func={this.shortNameCreator()} user={this.state.user}/>
-          <Text style={{fontFamily: "Montserrat-Bold", fontSize: 20}}>{this.state.user.name}, {this.state.user.age}</Text>
-          <Text style={{fontFamily: "Montserrat-Italic", fontSize: 13}}>{this.state.user.fac}</Text>
-          <View style={{paddingTop: 10}}>
-            <Button style={{alignSelf: "center", flexDirection: "row", backgroundColor: "maroon", justifyContent: "center"}}>
+          <Text style={{paddingTop: 3, fontFamily: "Montserrat-Bold", fontSize: 20}}>{this.state.user.name}, {this.state.user.age}</Text>
+          <Text style={{paddingBottom: 3, fontFamily: "Montserrat-Italic", fontSize: 13}}>{this.state.user.fac}</Text>
+          <View style={{paddingTop: 6}}>
+            <Button style={{alignSelf: "center", flexDirection: "row", backgroundColor: "maroon", justifyContent: "center"}}
+                    onPress={() => {this.setState({isOverlayVisible: false}); NavigationManager.navigate("UserPage", {user: this.state.user, thisUser: this.state.user})}}>
                 <Text style={{fontFamily: "Montserrat-Bold", fontSize: 15, color: "white"}}>View and edit profile</Text>
             </Button>
           </View>
-          <View style={{paddingTop: 10}}>
-            <Button style={{alignSelf: "center", flexDirection: "row", backgroundColor: "maroon", justifyContent: "center"}}>
+          <View style={{paddingTop: 6}}>
+            <Button style={{alignSelf: "center", flexDirection: "row", backgroundColor: "maroon", justifyContent: "center"}}
+                    onPress={() => {this.setState({isOverlayVisible: false}); NavigationManager.navigate("YourJioPage", {user: this.state.user})}}>
                 <Text style={{fontFamily: "Montserrat-Bold", fontSize: 15, color: "white"}}>View your jios</Text>
+            </Button>
+          </View>
+          <View style={{paddingTop: 6}}>
+            <Button style={{alignSelf: "center", flexDirection: "row", backgroundColor: "maroon", justifyContent: "center"}}>
+                <Text style={{fontFamily: "Montserrat-Bold", fontSize: 15, color: "white"}}>Sign out</Text>
             </Button>
           </View>
         </View>

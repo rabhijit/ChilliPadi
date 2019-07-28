@@ -21,7 +21,7 @@ import firebase from "react-native-firebase";
 
 let db = firebase.firestore();
 
-export default class JioPage extends Component {
+export default class YourJioPage extends Component {
     constructor(props) {
     super(props);
     this.state = {
@@ -36,12 +36,11 @@ export default class JioPage extends Component {
       newJioExpiry: "",
       newJioMax: 1e20
     };
-    this.writeJio = this.writeJio.bind(this);
     this.setJioMax = this.setJioMax.bind(this);
   }
 
   componentDidMount() {
-    db.collection('jios').onSnapshot(snapshot => {
+    db.collection('jios').where('members', 'array-contains', this.state.user["ID"]).onSnapshot(snapshot => {
         this.setState({Jios: []});
         snapshot.docs.forEach(doc => {
             let eachJio = {};
@@ -68,22 +67,6 @@ export default class JioPage extends Component {
 
   componentWillUnmount() {
     this.setState({isOverlayVisible: false});
-  }
-
-  writeJio() {
-    db.collection('jios').add({
-        titleName: this.state.newJioName,
-        location: this.state.newJioLocation,
-        distanceFromHere: Math.floor(Math.random() * 30000),
-        description: this.state.newJioDescription,
-        numberOfPeople: 1,
-        maxNumber: this.state.newJioMax,
-        expiryDate: this.state.newJioExpiry,
-        jioCreator: this.state.user["name"],
-        members: [this.state.user["ID"]]
-    })
-    this.setState({newJioName: "", newJioLocation: "", newJioDescription: "", newJioExpiry: "", newJioMax: 1e20});
-    Toast.show({text: "Jio created!"})
   }
 
   setJioMax(value) {
@@ -183,52 +166,6 @@ export default class JioPage extends Component {
                 <CardItem><Text style={{fontFamily: "Montserrat-Light"}}>{rows.length} results</Text></CardItem>
                 {rows}
           </ScrollView>
-          <Overlay isVisible={this.state.isOverlayVisible}
-                    onBackdropPress={() => this.setState({isOverlayVisible: false})}
-                    width={(9/10)*deviceWidth} height={(9/10)*deviceHeight}>
-                <Root>
-                <View>
-                    <Text style={{paddingLeft: 3, paddingBottom: 18, fontFamily: "Montserrat-Bold", fontSize: 20}}>Your new jio</Text>
-                    <Text style={{paddingLeft: 10, fontFamily: "Montserrat-SemiBold", fontSize: 17}}>Jio name:</Text>
-                    <Input containerStyle={{paddingBottom: 10}} placeholder="Enter name" inputStyle={{fontSize: 15, fontFamily: "Montserrat-Light"}}
-                           onChangeText={(text) => {this.setState({newJioName: text})}}
-                    />
-                    <Text style={{paddingLeft: 10, fontFamily: "Montserrat-SemiBold", fontSize: 17}}>Location:</Text>
-                    <Input containerStyle={{paddingBottom: 10}} placeholder="Enter location" inputStyle={{fontSize: 15, fontFamily: "Montserrat-Light"}}
-                           onChangeText={(text) => {this.setState({newJioLocation: text})}}
-                    />
-                    <Text style={{paddingLeft: 10, fontFamily: "Montserrat-SemiBold", fontSize: 17}}>Description:</Text>
-                    <Input containerStyle={{paddingBottom: 10}} placeholder="Enter description" inputStyle={{fontSize: 15, fontFamily: "Montserrat-Light"}}
-                           onChangeText={(text) => {this.setState({newJioDescription: text})}}
-                    />
-                    <Text style={{paddingLeft: 10, paddingBottom: 5, fontFamily: "Montserrat-SemiBold", fontSize: 17}}>Expiry date:</Text>
-                    <DatePicker format="DD/MM/YYYY" style={{paddingBottom: 10, paddingLeft: 10}} date={this.state.newJioExpiry} placeholder="Select date" 
-                                onDateChange={(date) => this.setState({newJioExpiry: date})}
-                    />
-                    <View style={{flexDirection: 'row'}}>
-                        <Text style={{paddingLeft: 10, paddingBottom: 5, fontFamily: "Montserrat-SemiBold", fontSize: 17}}>Set a maximum jio size:</Text>
-                        <CheckBox checked={this.state.maxCheck} color="maroon" onPress={() => {this.setState({maxCheck: !this.state.maxCheck})}} />
-                    </View>
-                    <View style={{paddingLeft: 10}}>
-                        <MaxSet maxCheck={this.state.maxCheck} />
-                    </View>
-                    <View style={{paddingLeft: 10, paddingTop: 10}}>
-                        <Button style={{flexDirection: "row", backgroundColor: "maroon", justifyContent: "center"}} onPress={() => {this.writeJio(); this.setState({isOverlayVisible: false})}}>
-                            <Text style={{fontFamily: "Montserrat-Bold", fontSize: 15, color: "white"}}>Submit your jio</Text>
-                        </Button>
-                    </View>
-                </View>
-                </Root>
-          </Overlay>
-          <Footer>
-              <FooterTab style={{"backgroundColor": "maroon", borderRadius: 1, borderColor: "maroon", borderWidth: 0}}>
-                  <Button style={{flexDirection: "row", justifyContent: "center"}} onPress={() => this.setState({isOverlayVisible: true})}>
-                      <Icon type="AntDesign" name="pluscircleo"
-                            style={{color:"white", fontSize: 35}} />
-                      <Text style={{fontFamily: "Montserrat-Bold", fontSize: 15, color: "white"}}>Create jio</Text>
-                  </Button>
-              </FooterTab>
-          </Footer>
       </Container>
     );
   }
@@ -241,4 +178,4 @@ export default class JioPage extends Component {
 //Internal StyleSheet here
 */
 
-module.export = JioPage; //module export statement
+module.export = YourJioPage; //module export statement

@@ -1,10 +1,11 @@
 import React, { Component } from "react";
-import { Image, View, TouchableOpacity, Platform, Dimensions, StyleSheet, Alert } from "react-native";
+import { Image, View, TouchableOpacity, Platform, Dimensions, StyleSheet, ActivityIndicator } from "react-native";
 import { Container, Text, Button } from "native-base";
 import { Icon, Overlay } from "react-native-elements";
 //import Swiper from "react-native-deck-swiper";
 import CardStack, { Card } from "react-native-card-stack-swiper";
 import MyHeader from "../Components/header";
+import NavigationManager from "../managers/navigationManager";
 import firebase from "react-native-firebase";
 
 /*
@@ -27,7 +28,10 @@ export default class SwipingPage extends Component {
       isOverlayVisible: false,
       matchPic: null,
       matchName: null,
-      matchGender: null
+      matchGender: null,
+      currIndex: 0,
+      loaded: false,
+      update: 0
     };
   }
   /*
@@ -42,6 +46,7 @@ export default class SwipingPage extends Component {
   */
 
   componentDidMount() {
+    this.setState({loaded: false});
     db.collection('accounts').where('gender', '==', +(!this.state.user['gender']))
       .get().then(snapshot => {
         snapshot.docs.forEach(doc => {
@@ -53,14 +58,20 @@ export default class SwipingPage extends Component {
             eachAccount['age'] = data.age;
             eachAccount['bio'] = data.bio;
             eachAccount['fac'] = data.fac;
-            eachAccount['pic'] = data.dp;
+            eachAccount['dp'] = data.dp;
             this.setState(prevState => ({accounts: [...prevState.accounts, eachAccount]}));
           }
         });
       });
+      this.setState({loaded: true});
+  }
+
+  componentWillUnmount() {
+    this.setState({isOverlayState: false});
   }
 
   onSwipedRight(index) {
+    this.setState({currIndex: index});
     db.collection('accounts').doc(this.state.user['ID']).update({
       interests: firebase.firestore.FieldValue.arrayUnion(cards[index])
     })
@@ -88,7 +99,7 @@ export default class SwipingPage extends Component {
        rows.push(
                 <Card key={i} style={styles.card}>
                     <View style={{alignItems: "center"}}>
-                        <Image source={{uri: this.state.accounts[i]["pic"]}} style={styles.image} />
+                        <Image source={{uri: this.state.accounts[i]["dp"]}} style={styles.image} />
                     </View>
                     <View style={{paddingLeft: 12, paddingRight: 12, paddingTop: 10}}>
                         <Text style={{fontFamily: "Montserrat-Bold", fontSize: 22}}>{this.state.accounts[i]["name"]}, {this.state.accounts[i]["age"]}</Text>
@@ -103,29 +114,52 @@ export default class SwipingPage extends Component {
                 </Card>
        )
    }
+
     // Notice JSX - a html-JS like syntax is within ()
     return (
+      (!this.state.loaded) ? (
+          <Container>
+          <MyHeader user={this.state.user}/>
+            <View style={{paddingTop: 10, alignItems: "center", justifyContent: "center"}}>
+              <ActivityIndicator animating={true} />
+            </View>
+          </Container>
+      ) : (
       <Container style={styles.container}>
-        <MyHeader />
+        <MyHeader user={this.state.user}/>
         <View style={{paddingTop: 10}}>
             <Overlay isVisible={this.state.isOverlayVisible}
                      onBackdropPress={() => this.setState({isOverlayVisible: false})}
-                     width={(8.8/10)*deviceWidth} height={(8.8/10)*deviceHeight}>
+                     width={(8.8/10)*deviceWidth} height={(8/10)*deviceHeight}>
               <View style={{alignItems: "center"}}>
                 <Text style={{fontFamily: "Montserrat-Bold", fontSize: 25}}>It's a match!</Text>
                 <Text style={{textAlign: "center", paddingTop: 2, fontFamily: "Montserrat-Light", fontSize: 13}}>The stars have aligned in favour of you and {this.state.matchName}.</Text>
                 <View style={{paddingTop: 5, flexDirection: "row", justifyContent: "space-evenly"}}>
-                  <Image source={{uri: this.state.user.dp}} style={{width: (3.75/10 * deviceWidth), height: (5/10) * deviceHeight}}/>
-                  <Image source={{uri: this.state.matchPic}} style={{width: (3.75/10 * deviceWidth), height: (5/10) * deviceHeight}}/>
+                  <Image source={{uri: this.state.user.dp}} style={{width: (3.75/10 * deviceWidth), height: (4.5/10) * deviceHeight}}/>
+                  <Image source={{uri: this.state.matchPic}} style={{width: (3.75/10 * deviceWidth), height: (4.5/10) * deviceHeight}}/>
                 </View>
                 <View style={{paddingTop: 10}}>
-                  <Button style={{alignSelf: "center", flexDirection: "row", backgroundColor: "maroon", justifyContent: "center"}}>
-                      <Text style={{fontFamily: "Montserrat-Bold", fontSize: 15, color: "white"}}>Message {this.state.matchGender}</Text>
-                  </Button>
+                  <View style={{flexDirection: "row"}}>
+                    <View style={{paddingRight: 3}}>
+                      <Button style={{alignSelf: "center", flexDirection: "row", backgroundColor: "maroon", justifyContent: "center"}}
+                              onPress={() => {this.setState({isOverlayVisible: false}); NavigationManager.navigate("SingleMessagePage",
+                                                            {user: this.state.user, chosenChat: this.state.accounts[this.state.currIndex]['name'],
+                                                             chosenChatId: this.state.accounts[this.state.currIndex]['ID'], datingOrJio: 0, chosenDp: this.state.accounts[this.state.currIndex]['dp']})}}>
+                          <Text style={{fontFamily: "Montserrat-SemiBold", fontSize: 13, color: "white"}}>Message {this.state.matchGender}</Text>
+                      </Button>
+                    </View>
+                    <View style={{paddingLeft: 3}}>
+                      <Button style={{alignSelf: "center", flexDirection: "row", backgroundColor: "maroon", justifyContent: "center"}}
+                              onPress={() => {this.setState({isOverlayVisible: false}); NavigationManager.navigate("UserPage", {user: this.state.user, thisUser: this.state.accounts[this.state.currIndex]})}}>
+                          <Text style={{fontFamily: "Montserrat-SemiBold", fontSize: 13, color: "white"}}>View profile</Text>
+                      </Button>
+                    </View>
+                  </View>
                 </View>
-                <View style={{paddingTop: 10}}>
-                  <Button style={{alignSelf: "center", flexDirection: "row", backgroundColor: "maroon", justifyContent: "center"}}>
-                      <Text style={{fontFamily: "Montserrat-Bold", fontSize: 15, color: "white"}}>Maybe later</Text>
+                <View style={{paddingTop: 7}}>
+                  <Button style={{alignSelf: "center", flexDirection: "row", backgroundColor: "maroon", justifyContent: "center"}}
+                          onPress={() => this.setState({isOverlayVisible: false})}>
+                      <Text style={{fontFamily: "Montserrat-SemiBold", fontSize: 13, color: "white"}}>Maybe later</Text>
                   </Button>
                 </View>
               </View>
@@ -133,6 +167,7 @@ export default class SwipingPage extends Component {
             </Overlay>
             <CardStack ref={swiper => {this.swiper = swiper}} style={{alignItems: 'center'}}
                        onSwipedRight={(index) => {this.setState({currentIndex: index}); this.onSwipedRight(index); }}
+                       verticalSwipe={false}
                        renderNoMoreCards={() =>
                                         <View style={{flexDirection: "column", justifyContent: "center"}}>
                                           <Text style={{justifyContent: "center", fontFamily: "Montserrat-SemiBold"}}>
@@ -147,7 +182,7 @@ export default class SwipingPage extends Component {
                 {rows}
             </CardStack>
         </View>
-      </Container>
+      </Container> )
     );
   }
 }

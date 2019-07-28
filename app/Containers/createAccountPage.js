@@ -1,14 +1,15 @@
 import React, { Component } from "react";
 import { View, Image, Dimensions, TextInput, TouchableOpacity } from "react-native";
-import { Container, Text, Toast } from "native-base";
+import { Container, Text, Toast, Picker } from "native-base";
 import NavigationManager from "../managers/navigationManager";
 import ImagePicker from 'react-native-image-picker';
-
-import { SERVER_URL } from "../src/constants"
-import { AccountSchema } from "../src/allSchemas";
+import NumericInput from "react-native-numeric-input";
+import { Avatar, CheckBox } from "react-native-elements";
 import firebase from "react-native-firebase";
 
 // settle Keyboard blocking text entry fields
+
+let db = firebase.firestore();
 
 /*
     other import statements or 
@@ -20,8 +21,16 @@ export default class createAccountPage extends Component {
       super(props);
       this.state = {
         //state property here
+        typed_firstname: "",
+        typed_lastname: "",
+        gender: 1,
+        age: 20,
         typed_id: "",
         typed_password: "",
+        typed_fac: "",
+        typed_bio: "",
+        typed_email: "",
+        dp: "null"
       };
     }
     /*
@@ -39,14 +48,34 @@ export default class createAccountPage extends Component {
       //ImagePicker.launchCamera();
     }
 
+    imageSelector() {
+      ImagePicker.showImagePicker(response => {
+        if (!(response.didCancel) && !(response.error)) {
+          const source = {uri: response.uri};
+          this.setState({dp: source});
+        }
+      })
+    }
+
     create_account() {
-        firebase.auth().createUserWithEmailAndPassword(this.state.typed_id, this.state.typed_password)
+        firebase.auth().createUserWithEmailAndPassword(this.state.typed_id + "@chillipadi.com", this.state.typed_password)
                 .then(() => {
+                  db.collection("accounts").doc(this.state.typed_id).set({
+                    ID: this.state.typed_id,
+                    age: this.state.age,
+                    bio: this.state.typed_bio,
+                    fac: this.state.typed_fac,
+                    email: this.state.typed_id + "@chillipadi.com",
+                    gender: this.state.gender,
+                    interests: [],
+                    name: this.state.typed_firstname + " " + this.state.typed_lastname,
+                    password: this.state.typed_password,
+                    dp: "null"
+                  });
                     NavigationManager.navigate("LoginPage");
                     Toast.show({text: "Account created successfully!"});
                   })
                   .catch(error => {
-                    console.warn(error);
                     Toast.show({text: "Something went wrong."});
                   })
     }
@@ -66,42 +95,85 @@ export default class createAccountPage extends Component {
         
         return (
             <Container>
-            <View>
-              <View style={{alignItems: "center"}}>
-                <Image style={{position: 'absolute', top: deviceHeight / 8, height: deviceWidth / 4, width: deviceWidth / 4}} source={require("../assets/images/logo.jpg")} />
-              </View>
-              <View style={{alignItems: "center"}}>
-                <Text style={{position: 'absolute', top: deviceHeight / 3.3, fontFamily: 'Montserrat-Light', fontSize: 30, color: 'maroon'}}>
-                  Chilli Padi
-                </Text>
-                <Text style={{position: 'absolute', top: deviceHeight / 2.7, fontFamily: 'Montserrat-Regular', fontSize: 12, color: 'maroon'}}>
+              <View style={{paddingTop: 15, alignItems: "center"}}>
+                <Text style={{paddingTop: 5, fontFamily: 'Montserrat-Regular', fontSize: 12, color: 'maroon'}}>
                   add some spice to your life.
                 </Text>
-              </View>
-              <View style={{alignItems: "center"}}>
-                <TextInput placeholder="NUSNET ID" placeholderTextColor="silver" style={{color: "white", width: "55%", backgroundColor: 'maroon', position: 'absolute', top: deviceHeight / 2.2}} 
-                           onChangeText={
-                             (text) => this.setState({typed_id: text})
-                           }
-                />
-              </View>
-              <View style={{alignItems: "center"}}>
-                <TextInput secureTextEntry={true} placeholder="NUSNET password" placeholderTextColor="silver" style={{color: "white", width: "55%", backgroundColor: 'maroon', position: 'absolute', top: deviceHeight / 1.8}} 
-                  onChangeText={
-                    (text) => this.setState({ typed_password: text })
-                  }
-                />
-              </View>
-              <View style={{alignItems: "center"}}>
-                <TouchableOpacity style={{borderColor: "maroon", borderWidth: 2, borderRadius: 1, padding: 10, backgroundColor: 'white', position: 'absolute', top: deviceHeight / 1.45}}
-                                  onPress={() => this.create_account()}>
-                  <Text style={{fontFamily: 'Montserrat-Regular', fontSize: 12, color: 'black'}}>
-                    CREATE NEW ACCOUNT
-                  </Text>
-                </TouchableOpacity>
-              </View>
+                <View style={{paddingTop: 10}}>
+                  <Avatar rounded size="large" showEditButton={true} 
+                          onPress={() => this.imageSelector()} source={this.state.dp}
+                  />
+                </View>
+                <View style={{paddingTop: 15, flexDirection: "row", justifyContent: "space-evenly"}}>
+                  <View style={{paddingRight: 5, width: "40%"}}>
+                    <TextInput placeholder="First name" placeholderTextColor="silver" style={{color: "white", backgroundColor: 'maroon'}}
+                            onChangeText={
+                              (text) => this.setState({typed_firstname: text})
+                            }
+                    />
+                  </View>
+                  <View style={{paddingLeft: 5, width: "40%"}}>
+                    <TextInput placeholder="Last name" placeholderTextColor="silver" style={{color: "white", backgroundColor: 'maroon'}} 
+                              onChangeText={
+                                (text) => this.setState({typed_lastname: text})
+                              }
+                    />
+                  </View>
+                </View>
+                <View style={{paddingTop: 10, flexDirection: "row", justifyContent: "space-evenly"}}>
+                  <View style={{paddingRight: 5, width: "40%"}}>
+                    <TextInput placeholder="NUSNET ID" placeholderTextColor="silver" style={{color: "white", backgroundColor: 'maroon'}} 
+                            onChangeText={
+                              (text) => this.setState({typed_id: text})
+                            }
+                  />
+                  </View>
+                  <View style={{paddingLeft: 5, width: "40%"}}>
+                    <TextInput secureTextEntry={true} placeholder="NUSNET password" placeholderTextColor="silver" style={{color: "white", backgroundColor: 'maroon'}} 
+                    onChangeText={
+                      (text) => this.setState({ typed_password: text })
+                    }
+                  />
+                  </View>
+                </View>
+                <View style={{paddingTop: 10, width: "80%"}}>
+                  <TextInput placeholder="Bio" placeholderTextColor="silver" style={{color: "white", backgroundColor: 'maroon'}} 
+                    onChangeText={
+                      (text) => this.setState({ typed_bio: text })
+                    }
+                  />
+                </View>
+                <View style={{paddingTop: 10, width: "70%"}}>
+                  <TextInput placeholder="Faculty" placeholderTextColor="silver" style={{color: "white", backgroundColor: 'maroon'}} 
+                    onChangeText={
+                      (text) => this.setState({ typed_fac: text })
+                    }
+                  />
+                </View>
+                <View style={{paddingTop: 10, flexDirection: "row"}}>
+                  <CheckBox title="Male" checked={this.state.gender == 0} style={{fontFamily: "Montserrat-SemiBold"}}
+                            onPress={() => this.setState({gender: 0})}
+                  />
+                  <CheckBox title="Female" checked={this.state.gender == 1} style={{fontFamily: "Montserrat-SemiBold"}}
+                            onPress={() => this.setState({gender: 1})}
+                  />
+                </View>
+                <View style={{paddingTop: 10, flexDirection: "row"}}>
+                  <Text style={{paddingTop: 10, fontFamily: "Montserrat-Light", fontSize: 15}}>Age: </Text>
+                  <NumericInput value={this.state.age} onChange={value => this.setState({age: value})}
+                                type="up-down"
+                  />
+                </View>
+                <View style={{paddingTop: 20}}>
+                  <TouchableOpacity style={{borderColor: "maroon", borderWidth: 2, borderRadius: 1, padding: 10, backgroundColor: 'white'}}
+                                    onPress={() => this.create_account()}>
+                    <Text style={{fontFamily: 'Montserrat-Regular', fontSize: 12, color: 'black'}}>
+                      CREATE NEW ACCOUNT
+                    </Text>
+                  </TouchableOpacity>
+                </View>
             </View>
-          </Container>            
+          </Container>
         );
     }
 }

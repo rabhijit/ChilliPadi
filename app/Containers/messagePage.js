@@ -16,8 +16,8 @@ import firebase from "react-native-firebase";
 
 let db = firebase.firestore();
 
-let datingDps = [];
-let jioDps = [];
+let datingDps = {};
+let jioDps = {};
 
 export default class MessagePage extends Component {
   constructor(props) {
@@ -28,6 +28,7 @@ export default class MessagePage extends Component {
       selectedIndex: 0,
       datingChats: {},
       jioChats: {},
+      update: 0
     };
     this.updateIndex = this.updateIndex.bind(this);
   }
@@ -41,11 +42,16 @@ export default class MessagePage extends Component {
       let newDatingChats = {};
       snapshot.docs.forEach(doc => {
         let data = doc.data();
-        if (data.sender == "you" || data.recipient == "you") {
+        if (data.sender == this.state.user["name"] || data.recipient == this.state.user["name"]) {
           if (!(conversations.includes(data.sender)) || !(conversations.includes(data.recipient))) {
             let thisChat = {};
             thisChat["content"] = data.content;
-            thisChat["sender"] = data.sender;
+            if (data.sender == this.state.user["name"]) {
+              thisChat["sender"] = "you";
+            }
+            else {
+              thisChat["sender"] = data.sender;
+            }
             thisChat["timestamp"] = data.timestamp;
             thisChat["messageDate"] = moment(data.timestamp.toDate()).add(8, 'hours').format('DD/MM/YYYY').toString();
             thisChat["messageTime"] = moment(data.timestamp.toDate()).add(8, 'hours').format('HH:mm').toString();
@@ -55,7 +61,7 @@ export default class MessagePage extends Component {
             if (!(conversations.includes(data.recipient))) {
               conversations.push(data.recipient);
             }
-            if (data.sender == "you") {
+            if (data.sender == this.state.user["name"]) {
               if (!(data.recipient in newDatingChats)) {
                 newDatingChats[data.recipient] = [];
               }
@@ -86,9 +92,14 @@ export default class MessagePage extends Component {
         to only search for jios u are in (if you are in data.jio.member) */
         if (!(conversations.includes(data.jio))) {
           let thisChat = {};
+          thisChat["jioID"] = data.jioID;
           thisChat["content"] = data.content;
           thisChat["jio"] = data.jio;
-          thisChat["sender"] = data.sender;
+          if (data.sender == this.state.user["name"]) {
+            thisChat["sender"] = "you";
+          } else {
+            thisChat["sender"] = data.sender;
+          }
           thisChat["timestamp"] = data.timestamp;
           thisChat["messageDate"] = moment(data.timestamp.toDate()).add(8, 'hours').format('DD/MM/YYYY').toString();
           thisChat["messageTime"] = moment(data.timestamp.toDate()).add(8, 'hours').format('HH:mm').toString();
@@ -96,7 +107,7 @@ export default class MessagePage extends Component {
           if (!(data.jio in newJioChats)) {
             newJioChats[data.jio] = [];
           }
-          thisChat["senderID"] = data.sender 
+          thisChat["senderID"] = data.senderID;
           newJioChats[data.jio].push(thisChat);
           //console.warn(conversations);
         }
@@ -145,14 +156,15 @@ export default class MessagePage extends Component {
     // Notice JSX - a html-JS like syntax is within ()
 
     for (let i in this.state.datingChats) {
-      console.warn(this.state.datingChats[i][0]);
       db.collection('accounts').doc(this.state.datingChats[i][0]['ID']).onSnapshot(doc => {
         let data = doc.data();
-        datingDps.push(data.dp);
+        datingDps[data.name] = data.dp;
+        if (this.state.update != Object.keys(this.state.datingChats).length) {
+          this.setState({update: this.state.update + 1});
+          this.forceUpdate();
+        }
       })
     }
-
-    console.warn(datingDps);
 
     function ShowDate(props) {
         let day = moment(props.date, "YYYY-MM-DD HH:mm:ss").format('ddd');
@@ -200,11 +212,13 @@ export default class MessagePage extends Component {
         for (let i in Object.keys(props.datingChats)) {
           rows.push(
             <TouchableOpacity key={i} onPress={() => NavigationManager.navigate("SingleMessagePage", 
-                                                    {chosenChat: Object.keys(props.datingChats)[i], datingOrJio: 0, user: props.user})}>
+                                                    {chosenChat: Object.keys(props.datingChats)[i], chosenChatId: props.datingChats[Object.keys(props.datingChats)[i]][0]['ID'],
+                                                     chosenDp: props.datingDps[Object.keys(props.datingChats)[i]],
+                                                     datingOrJio: 0, user: props.user})}>
               <Card>
                 <CardItem>
                   <View style={{flexDirection: "row"}}>
-                    <MyAvatar dp={props.datingChats[Object.keys(props.datingChats)[i]][0]['dp']} func={props.func} />
+                    <MyAvatar dp={props.datingDps[Object.keys(props.datingChats)[i]]} func={props.func} />
                     <View style={{width: deviceWidth * (7.7/10), paddingLeft: 15, paddingRight: 15, flexDirection: "column", flexWrap: 'wrap'}}>
                       <Text style={{fontFamily: 'Montserrat-Bold', fontSize: 17, paddingBottom: 7}}>{Object.keys(props.datingChats)[i]}</Text>
                       <Text numberOfLines={2} style={{fontFamily: 'Montserrat-Regular', fontSize: 13, paddingBottom: 7}}>{props.datingChats[Object.keys(props.datingChats)[i]][0]['content']}</Text>
@@ -222,27 +236,17 @@ export default class MessagePage extends Component {
       for (let i in Object.keys(props.jioChats)) {
         rows.push(
           <TouchableOpacity key={i} onPress={() => NavigationManager.navigate("SingleMessagePage", 
-                                                    {chosenChat: Object.keys(props.jioChats)[i], datingOrJio: 1, user: props.user})}>
+                                                    {chosenChat: Object.keys(props.jioChats)[i], chosenChatId: props.jioChats[Object.keys(props.jioChats)[i]][0]['jioID'],
+                                                     datingOrJio: 1, user: props.user})}>
           <Card>
             <CardItem>
-              <View style={{flexDirection: "row"}}>
-                <View style={{flexDirection: "column", justifyContent: "center"}}>
-                  <View style={{paddingLeft: 10}}>
-                    <Avatar avatarStyle={{alignSelf: "center"}} size="medium" rounded />
-                  </View>
-                  <View style={{flexDirection: "row"}}>
-                    <Avatar size="small" rounded />
-                    <Avatar size="small" rounded />
-                  </View>
-                </View>
-                <View style={{width: deviceWidth * (7.7/10), paddingLeft: 15, paddingRight: 15, flexDirection: "column", flexWrap: 'wrap'}}>
-                  <Text style={{fontFamily: 'Montserrat-Bold', fontSize: 17, paddingBottom: 7}}>{Object.keys(props.jioChats)[i]}</Text>
+                <View style={{paddingLeft: 3, paddingRight: 5, flexDirection: "column", flexWrap: 'wrap'}}>
+                  <Text style={{fontFamily: 'Montserrat-Bold', fontSize: 17, paddingBottom: 4}}>{Object.keys(props.jioChats)[i]}</Text>
                   <Text style={{fontFamily: 'Montserrat-SemiBold', fontSize: 13}}>{props.jioChats[Object.keys(props.jioChats)[i]][0]['sender']}:</Text>
                   <Text numberOfLines={1} style={{fontFamily: 'Montserrat-Regular', fontSize: 13, paddingBottom: 7}}>{props.jioChats[Object.keys(props.jioChats)[i]][0]['content']}</Text>
                   <ShowDate sender={props.jioChats[Object.keys(props.jioChats)[i]][0]['sender']} index={props.index}
                             date={props.jioChats[Object.keys(props.jioChats)[i]][0]['messageDate']} time={props.jioChats[Object.keys(props.jioChats)[i]][0]['messageTime']} />
                 </View>
-              </View>
             </CardItem>
           </Card>
         </TouchableOpacity>
@@ -271,6 +275,7 @@ export default class MessagePage extends Component {
             */}
             <ButtonSelect user={this.state.user} index={this.state.selectedIndex} func={this.shortNameCreator()}
                           datingChats={this.state.datingChats} jioChats={this.state.jioChats}
+                          datingDps={datingDps} jioDps={jioDps}
              />
         </ScrollView>
       </Container>

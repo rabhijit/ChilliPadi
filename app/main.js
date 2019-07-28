@@ -3,8 +3,6 @@ import { Root } from "native-base";
 import { createAppContainer, createStackNavigator } from "react-navigation";
 import HomePage from "./Containers/homePage";
 import CreateAccountPage from "./Containers/createAccountPage"
-import ListingPage from "./Containers/listingPage";
-import SingleListingPage from "./Containers/singleListingPage";
 import NavigationManager from "./managers/navigationManager";
 import LoginPage from "./Containers/loginPage";
 import JioPage from "./Containers/jioPage";
@@ -12,6 +10,8 @@ import SingleJioPage from "./Containers/singleJioPage";
 import MessagePage from "./Containers/messagePage";
 import SingleMessagePage from "./Containers/singleMessagePage";
 import SwipingPage from "./Containers/swipingPage";
+import UserPage from "./Containers/userPage";
+import YourJioPage from "./Containers/yourJioPage";
 
 /*
     other import statements or
@@ -20,7 +20,6 @@ import SwipingPage from "./Containers/swipingPage";
 
 const MyStackNavigator = createStackNavigator(
     {
-        
         LoginPage: {
             screen: LoginPage
         },
@@ -28,9 +27,11 @@ const MyStackNavigator = createStackNavigator(
         CreateAccountPage: {
             screen: CreateAccountPage
         },
-        
         HomePage: {
             screen: HomePage
+        },
+        UserPage: {
+            screen: UserPage
         },
         MessagePage: {
             screen: MessagePage
@@ -38,17 +39,14 @@ const MyStackNavigator = createStackNavigator(
         SingleMessagePage: {
             screen: SingleMessagePage
         },
-        ListingPage: {
-            screen: ListingPage
-        },
-        SingleListingPage: {
-            screen: SingleListingPage
-        },
         SwipingPage: {
             screen: SwipingPage
         },
         JioPage: {
             screen: JioPage
+        },
+        YourJioPage: {
+            screen: YourJioPage
         },
         SingleJioPage: {
             screen: SingleJioPage
