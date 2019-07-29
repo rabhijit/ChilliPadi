@@ -106,6 +106,20 @@ export default class SingleJioPage extends Component {
         }
     }
 
+    function MyTextButton(props) {
+        if (!props.inJio) {
+            return null;
+        }
+        else {
+            return <Button block style={{width: "100%", backgroundColor: "maroon", flexDirection: "row", justifyContent: "center"}}
+                                    onPress={() => NavigationManager.navigate("SingleMessagePage", {user: props.user, chosenChat: props.thisJio['titleName'], 
+                                                                              chosenChatId: props.thisJio['jioID'], datingOrJio: 1})}>
+                                <Icon type="MaterialCommunityIcons" name="message" style={{color: "white"}} />
+                                <Text style={{fontFamily: "Montserrat-SemiBold"}}>Text Group Chat</Text>
+                            </Button>
+        }
+    }
+
     return (
       <Container>
         <MyHeader user={this.state.user} />
@@ -148,12 +162,7 @@ export default class SingleJioPage extends Component {
                                     {this.state.thisJio["jioCreator"]}
                                 </Text>
                             </View>
-                            <Button block style={{width: "100%", backgroundColor: "maroon", flexDirection: "row", justifyContent: "center"}}
-                                    onPress={() => NavigationManager.navigate("SingleMessagePage", {user: this.state.user, chosenChat: this.state.thisJio['titleName'], 
-                                                                              chosenChatId: this.state.thisJio['jioID'], datingOrJio: 1})}>
-                                <Icon type="MaterialCommunityIcons" name="message" style={{color: "white"}} />
-                                <Text style={{fontFamily: "Montserrat-SemiBold"}}>Text Group Chat</Text>
-                            </Button>
+                            <MyTextButton inJio={this.state.inJio} user={this.state.user} thisJio={this.state.thisJio} />
                         </View>
                     </CardItem>
                 </Card>

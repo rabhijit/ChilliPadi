@@ -51,7 +51,7 @@ export default class JioPage extends Component {
             eachJio['location'] = data.location;
             eachJio['distanceFromHere'] = data.distanceFromHere;
             eachJio['description'] = data.description;
-            eachJio['numberOfPeople'] = data.numberOfPeople;
+            eachJio['numberOfPeople'] = data.members.length;
             eachJio['maxNumber'] = data.maxNumber;
             eachJio['expiryDate'] = data.expiryDate;
             eachJio['genderPref'] = data.genderPref;
